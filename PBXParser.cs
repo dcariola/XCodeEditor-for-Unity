@@ -8,7 +8,6 @@ namespace UnityEditor.XCodeEditor
 {
 	public class PBXParser
 	{
-	
 		public const char WHITESPACE_SPACE = ' ';
 		public const char WHITESPACE_TAB = '\t';
 		public const char WHITESPACE_NEWLINE = '\n';
@@ -23,20 +22,6 @@ namespace UnityEditor.XCodeEditor
 		public const char QUOTEDSTRING_BEGIN_TOKEN = '"';
 		public const char QUOTEDSTRING_END_TOKEN = '"';
 		public const char QUOTEDSTRING_ESCAPE_TOKEN = '\\';
-		public const char DATA_BEGIN_TOKEN = '<';
-		public const char DATA_END_TOKEN = '>';
-		public const char DATA_GSOBJECT_BEGIN_TOKEN = '*';
-		public const char DATA_GSDATE_BEGIN_TOKEN = 'D';
-		public const char DATA_GSBOOL_BEGIN_TOKEN = 'B';
-		public const char DATA_GSBOOL_TRUE_TOKEN = 'Y';
-		public const char DATA_GSBOOL_FALSE_TOKEN = 'N';
-		public const char DATA_GSINT_BEGIN_TOKEN = 'I';
-		public const char DATA_GSREAL_BEGIN_TOKEN = 'R';
-		public const char DATE_DATE_FIELD_DELIMITER = '-';
-		public const char DATE_TIME_FIELD_DELIMITER = ':';
-		public const char DATE_GS_DATE_TIME_DELIMITER = ' ';
-		public const char DATE_APPLE_DATE_TIME_DELIMITER = 'T';
-		public const char DATE_APPLE_END_TOKEN = 'Z';
 		public const char END_OF_FILE = (char)0x1A;
 		public const string COMMENT_BEGIN_TOKEN = "/*";
 		public const string COMMENT_END_TOKEN = "*/";
@@ -46,7 +31,6 @@ namespace UnityEditor.XCodeEditor
 		private char[] data;
 		private int index;
 //		private bool success;
-		private int indent = 0;
 	
 		public object Decode( string data )
 		{
@@ -57,83 +41,10 @@ namespace UnityEditor.XCodeEditor
 			}
 
 			data = data.Substring( 13 );
-//			char[] charToTrim = { WHITESPACE_TAB, WHITESPACE_NEWLINE, WHITESPACE_CARRIAGE_RETURN };
-//			data = data.Trim( charToTrim );
-
 			this.data = data.ToCharArray();
-			Debug.Log( this.data );
 			return Parse();
-			//return null;
 		}
-	
 
-
-
-		// ALTRO METODO
-//		#region Read
-//
-//		private bool Accept( char[] acceptableSymbols )
-//		{
-//			bool symbolPresent = false;
-//			foreach( char c in acceptableSymbols ) {
-//				if( data[index] == c )
-//					symbolPresent = true;
-//			}
-//			return symbolPresent;
-//	    }
-//
-//		private bool Accept( char acceptableSymbol )
-//		{
-//			return data[index] == acceptableSymbol;
-//		}
-//
-//		private void Expect( char[] expectedSymbols )
-//		{
-//			if( !Accept( expectedSymbols ) ) {
-//				string excString = "Expected " + expectedSymbols[0] + "'";
-//				foreach( char c in expectedSymbols )
-//					excString += "'" + c + "' ";
-//
-//				excString += " but found '" + (char)data[index] + "' at index " + index;
-//	            throw new System.Exception( excString );
-//	        }
-//	    }
-//
-//		private void Expect( char expectedSymbol )
-//		{
-//			if( !Accept( expectedSymbol ) )
-//				throw new System.Exception( "Expected '" + expectedSymbol + "' but found '" + (char)data[index] + "' at index " + index );
-//		}
-//
-//		private void Read( char symbol )
-//		{
-//			Expect( symbol );
-//			index++;
-//		}
-//
-//		private string ReadInputUntil( char[] symbols )
-//		{
-//			string s = string.Empty;
-//			while( !Accept( symbols ) ) {
-//				s += (char)data[index];
-//				Skip();
-//			}
-//			index--;
-//			return s;
-//		}
-//
-//		private string ReadInputUntil( char symbol )
-//		{
-//			string s = string.Empty;
-//			while( !Accept( symbol ) ) {
-//				s += (char)data[index];
-//				Skip();
-//			}
-//			index--;
-//			return s;
-//		}
-//
-//		#endregion
 		#region Move
 
 		private char NextToken()
@@ -163,8 +74,6 @@ namespace UnityEditor.XCodeEditor
 
 		private bool SkipWhitespaces()
 		{
-//			Debug.Log( "Skip whitespace start: " + index );
-			
 			bool whitespace = false;
 			while( Regex.IsMatch( StepForeward().ToString(), @"\s" ) )
 				whitespace = true;
@@ -196,8 +105,6 @@ namespace UnityEditor.XCodeEditor
 
 		private bool SkipComments()
 		{
-//			Debug.Log( "Skip comment" );
-
 			string s = string.Empty;
 			string tag = Peek( 2 );
 			switch( tag ) {
@@ -206,7 +113,7 @@ namespace UnityEditor.XCodeEditor
 							s += StepForeward();
 						}
 						s += StepForeward( 2 );
-						Debug.Log( "Skipped comment: \"" + s + "\"" );
+//						Debug.Log( "Skipped comment: \"" + s + "\"" );
 						break;
 					}
 				case COMMENT_LINE_TOKEN: {
@@ -274,8 +181,6 @@ namespace UnityEditor.XCodeEditor
 
 		private object ParseValue()
 		{
-			Debug.Log( "Parse value" );
-
 			switch( NextToken() ) {
 				case END_OF_FILE:
 					Debug.Log( "End of file" );
@@ -310,131 +215,51 @@ namespace UnityEditor.XCodeEditor
 //            	return self.parse_entity()
 		}
 
-//		private object ParseObject()
-//		{
-//			Debug.Log( "Parse object" );
-//			switch( NextToken() ) {
-//				case ARRAY_BEGIN_TOKEN: {
-//					return ParseArray();
-//				}
-//				case DICTIONARY_BEGIN_TOKEN: {
-//					return ParseDictionary();
-//				}
-////				case DATA_BEGIN_TOKEN : {
-////					return ParseData();
-////				}
-////				case QUOTEDSTRING_BEGIN_TOKEN : {
-////					String quotedString = parseQuotedString();
-////					//apple dates are quoted strings of length 20 and after the 4 year digits a dash is found
-////					if(quotedString.length()==20 && quotedString.charAt(4)==DATE_DATE_FIELD_DELIMITER) {
-////						try {
-////                        	NSDate date = new NSDate(quotedString);
-////                        	return date;
-////                    	} catch(Exception ex) {
-////                        	//not a date? --> return string
-////                        	return new NSString(quotedString);
-////                    	}
-////                	} else {
-////                    	return new NSString(quotedString);
-////                	}
-////            	}
-//            	default : {
-//					Debug.Log( "default" );
-//					return ParseEntity();
-//
-//                	//0-9
-////                	if( data[index] > 0x2F && data[index] < 0x3A ) {
-////                    	//int, real or date
-////                    	return ParseNumerical();
-////                	} else {
-////                    	//non-numerical -> string or boolean
-////						return ParseString();
-//
-////                    	string parsedString = ParseString();
-////
-////                    	if( parsedString.Equals( "YES" ) ) {
-////                        	return new  NSNumber(true);
-////                    	} else if(parsedString.equals("NO")) {
-////                        	return new NSNumber(false);
-////                    	} else {
-////                        	return new NSString(parsedString);
-////                    	}
-////                	}
-//            	}
-//        	}
-//    	}
-
 		private object ParseDictionary()
 		{
-			Debug.Log( "Parse dictionary" );
-			
 			SkipWhitespaces();
 			Hashtable dictionary = new Hashtable();
 			string keyString = string.Empty;
 			object valueObject = null;
-//			KeyValuePair<string, object> entry = new KeyValuePair<string, object>();
-			
-//			indent += 1;
-//			Debug.Log( "iniziato " + indent );
+
 			bool complete = false;
 			while( !complete ) {
-
 				switch( NextToken() ) {
 					case END_OF_FILE:
 						Debug.Log( "Error: reached end of file inside a dictionary: " + index );
-						break;
-
-					case DICTIONARY_ASSIGN_TOKEN: {
-						Debug.Log( "Parse dictionary assign: " + keyString + " - " + valueObject );
-						if( string.IsNullOrEmpty( keyString ) ) {
-							throw new System.Exception( "Unexpected " + DICTIONARY_ASSIGN_TOKEN + " token. Expected ke before assign token." );
-						} else
-						if( valueObject != null ) {
-								throw new System.Exception( "An object is already set for key " + keyString + "." );
-							}
-						Debug.Log( "completa?" );
-						break;
-					}
-					case DICTIONARY_ITEM_DELIMITER_TOKEN: {
-						Debug.Log( "Parse dictionary delimeter" );
-						if( string.IsNullOrEmpty( keyString ) ) {
-							throw new System.Exception( "Missing key before assign token." );
-						}
-						dictionary.Add( keyString, valueObject );
-//						keyString = string.Empty;
-//						valueObject = null;
-						break;
-					}
-					case DICTIONARY_END_TOKEN: {
-						Debug.Log( "Parse dictionary end" );
-						if( !string.IsNullOrEmpty( keyString ) && valueObject != null ) {
-							dictionary.Add( keyString, valueObject );
-//							keyString = string.Empty;
-//							valueObject = null;
-						}
-
-						Debug.Log( "Chiuso " + indent );
-						indent -= 1;
 						complete = true;
 						break;
-					}
-					default: {
-						Debug.Log( "Parse dictionary default" );
-						StepBackward();
-						if( string.IsNullOrEmpty( keyString ) ) {
-							keyString = ParseValue() as string;
-						} else {
-							valueObject = ParseValue();
-							if( valueObject == null )
-								Debug.Log( "VALUE: Qualcosa non va!" );
-							else
-								Debug.Log( "VALUE: " + valueObject.ToString() );
-						}
+
+					case DICTIONARY_ITEM_DELIMITER_TOKEN:
+//						if( string.IsNullOrEmpty( keyString ) ) {
+//							throw new System.Exception( "Missing key before assign token." );
+//						}
+
+						keyString = string.Empty;
+						valueObject = null;
 						break;
-					}
+
+					case DICTIONARY_END_TOKEN:
+//						if( !string.IsNullOrEmpty( keyString ) && valueObject != null ) {
+//
+//						}
+
+						keyString = string.Empty;
+						valueObject = null;
+						complete = true;
+						break;
+
+					case DICTIONARY_ASSIGN_TOKEN:
+						valueObject = ParseValue();
+						dictionary.Add( keyString, valueObject );
+						break;
+
+					default:
+						StepBackward();
+						keyString = ParseValue() as string;
+						break;
 				}
 			}
-			Debug.Log( "Parse dictionary completo" );
 			return dictionary;
 
 //		def parse_dictionary(self):
@@ -469,8 +294,6 @@ namespace UnityEditor.XCodeEditor
 
 		private ArrayList ParseArray()
 		{
-			Debug.Log( "Parse array" );
-
 			ArrayList list = new ArrayList();
 			bool complete = false;
 			while( !complete ) {
@@ -512,8 +335,6 @@ namespace UnityEditor.XCodeEditor
 
 		private object ParseString()
 		{
-			Debug.Log( "Parse string" );
-
 			string s = string.Empty;
 			char c = StepForeward();
 			while( c != QUOTEDSTRING_END_TOKEN ) {
@@ -524,8 +345,6 @@ namespace UnityEditor.XCodeEditor
 
 				c = StepForeward();
 			}
-
-			Debug.Log( s );
 			return s;
 
 //	 	def parse_string(self):
@@ -545,8 +364,6 @@ namespace UnityEditor.XCodeEditor
 
 		private object ParseEntity()
 		{
-			Debug.Log( "Parse entity" );
-
 			string word = string.Empty;
 			char c = StepForeward();
 
@@ -555,12 +372,9 @@ namespace UnityEditor.XCodeEditor
 				c = StepForeward();
 			}
 
-			if( word.Length != 24 && Regex.IsMatch( word, @"^\d+$" ) ) {
-				Debug.Log( "Found number: " + word );
+			if( word.Length != 24 && Regex.IsMatch( word, @"^\d+$" ) )
 				return Int32.Parse( word );
-			}
 
-			Debug.Log( "Found word: " + word );
 			return word;
 
 //		def parse_entity(self):
@@ -580,11 +394,6 @@ namespace UnityEditor.XCodeEditor
 		}
 
 		#endregion
-
-		public void test()
-		{
-			Debug.Log( "TEST: " + index + ", " + data[ index ] + " - " + NextToken() + ", " + index );
-		}
 
 	}
 }

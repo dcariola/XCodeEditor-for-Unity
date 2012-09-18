@@ -32,7 +32,9 @@ namespace UnityEditor.XCodeEditor
 //			Debug.Log( System.IO.File.OpenText( projPath ).ReadToEnd );
 
 			PBXParser parser = new PBXParser();
-			Debug.Log( parser.Decode( contents ) );
+			Hashtable test = (Hashtable)parser.Decode( contents );
+			Debug.Log( MiniJSON.jsonEncode( test ) );
 		}
+
 	}
 }
