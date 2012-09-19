@@ -2,12 +2,15 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
+
 
 namespace UnityEditor.XCodeEditor
 {
 	public class PBXParser
 	{
+		public const string PBX_HEADER_TOKEN = "// !$*UTF8*$!\n";
 		public const char WHITESPACE_SPACE = ' ';
 		public const char WHITESPACE_TAB = '\t';
 		public const char WHITESPACE_NEWLINE = '\n';
@@ -26,16 +29,18 @@ namespace UnityEditor.XCodeEditor
 		public const string COMMENT_BEGIN_TOKEN = "/*";
 		public const string COMMENT_END_TOKEN = "*/";
 		public const string COMMENT_LINE_TOKEN = "//";
+		private const int BUILDER_CAPACITY = 10000;
 
 		//
 		private char[] data;
 		private int index;
-//		private bool success;
+//		public bool success;
+		private int indent;
 	
 		public object Decode( string data )
 		{
 //			success = true;
-			if( !data.StartsWith( "// !$*UTF8*$!" ) ) {
+			if( !data.StartsWith( PBX_HEADER_TOKEN ) ) {
 				Debug.Log( "Wrong file format." );
 				return null;
 			}
@@ -43,6 +48,16 @@ namespace UnityEditor.XCodeEditor
 			data = data.Substring( 13 );
 			this.data = data.ToCharArray();
 			return Parse();
+		}
+
+		public string Encode( Dictionary<string, object> pbxData, bool readable = false )
+		{
+			indent = 0;
+
+			StringBuilder builder = new StringBuilder( PBX_HEADER_TOKEN, BUILDER_CAPACITY );
+			bool success = SerializeValue( pbxData, builder, readable );
+
+			return ( success ? builder.ToString() : null );
 		}
 
 		#region Move
@@ -218,7 +233,8 @@ namespace UnityEditor.XCodeEditor
 		private object ParseDictionary()
 		{
 			SkipWhitespaces();
-			Hashtable dictionary = new Hashtable();
+//			Hashtable dictionary = new Hashtable();
+			Dictionary<string, object> dictionary = new Dictionary<string, object>();
 			string keyString = string.Empty;
 			object valueObject = null;
 
@@ -345,6 +361,7 @@ namespace UnityEditor.XCodeEditor
 
 				c = StepForeward();
 			}
+
 			return s;
 
 //	 	def parse_string(self):
@@ -394,6 +411,181 @@ namespace UnityEditor.XCodeEditor
 		}
 
 		#endregion
+		#region Serialize
 
+		private bool SerializeValue( object value, StringBuilder builder, bool readable = false )
+		{
+			if( value == null ) {
+				builder.Append( "null" );
+			}
+			else if( value is Dictionary<string, object> ) {
+				SerializeDictionary( (Dictionary<string, object> )value, builder, readable );
+			}
+			else if( value.GetType().IsArray ) {
+				SerializeArray( new ArrayList( (ICollection)value ), builder, readable );
+			}
+			else if( value is ArrayList ) {
+				SerializeArray( (ArrayList)value, builder, readable );
+			}
+			else if( value is string ) {
+				SerializeString( (string)value, builder, readable );
+			}
+			else if( value is Char ) {
+				SerializeString( Convert.ToString( (char)value ), builder, readable );
+			}
+			else if( value.GetType().IsPrimitive ) {
+//				SerializeNumber( Convert.ToDouble( value ), builder );
+				builder.Append( Convert.ToString( value ) );
+			}
+//			else if( value is Hashtable )
+//			{
+//				serializeObject( (Hashtable)value, builder );
+//			}
+//			else if( ( value is Boolean ) && ( (Boolean)value == true ) )
+//			{
+//				builder.Append( "true" );
+//			}
+//			else if( ( value is Boolean ) && ( (Boolean)value == false ) )
+//			{
+//				builder.Append( "false" );
+//			}
+			else {
+				return false;
+			}
+	
+			return true;
+		}
+
+		private bool SerializeDictionary( Dictionary<string, object> dictionary, StringBuilder builder, bool readable = false )
+		{
+
+			builder.Append( DICTIONARY_BEGIN_TOKEN );
+
+//			bool first = true;
+			foreach( KeyValuePair<string, object> pair in dictionary ) {
+//				if( !first )
+//					builder.Append( DICTIONARY_ITEM_DELIMITER_TOKEN );
+
+				SerializeString( pair.Key, builder );
+				builder.Append( DICTIONARY_ASSIGN_TOKEN );
+				SerializeValue( pair.Value, builder );
+				builder.Append( DICTIONARY_ITEM_DELIMITER_TOKEN );
+//				first = false;
+			}
+
+			builder.Append( DICTIONARY_END_TOKEN );
+			return true;
+		}
+
+		private bool SerializeArray( ArrayList anArray, StringBuilder builder, bool readable = false )
+		{
+			builder.Append( ARRAY_BEGIN_TOKEN );
+	
+//			bool first = true;
+			for( int i = 0; i < anArray.Count; i++ )
+			{
+				object value = anArray[i];
+	
+//				if( !first )
+//				{
+//					builder.Append( ARRAY_ITEM_DELIMITER_TOKEN );
+//				}
+	
+				if( !SerializeValue( value, builder ) )
+				{
+					return false;
+				}
+
+				builder.Append( ARRAY_ITEM_DELIMITER_TOKEN );
+//				first = false;
+			}
+	
+			builder.Append( ARRAY_END_TOKEN );
+			return true;
+		}
+
+		private bool SerializeString( string aString, StringBuilder builder, bool useQuotes = false, bool readable = false )
+		{
+			// Is a GUID?
+			if( Regex.IsMatch( aString, @"^[A-F0-9]{24}$" ) ) {
+				builder.Append( aString );
+				return true;
+			}
+
+			// Is an empty string?
+			if( string.IsNullOrEmpty( aString ) ) {
+				builder.Append( QUOTEDSTRING_BEGIN_TOKEN );
+				builder.Append( QUOTEDSTRING_END_TOKEN );
+				return true;
+			}
+
+			if( !Regex.IsMatch( aString, @"^[A-Za-z0-9_.]+$" ) ) {
+				useQuotes = true;
+			}
+
+			if( useQuotes )
+				builder.Append( QUOTEDSTRING_BEGIN_TOKEN );
+
+			builder.Append( aString );
+
+//			char[] charArray = aString.ToCharArray();
+//			for( int i = 0; i < charArray.Length; i++ )
+//			{
+//				char c = charArray[i];
+//				if( c == '"' )
+//				{
+//					builder.Append( "\"" );
+//				}
+//				else if( c == '\\' )
+//				{
+//					builder.Append( "\\\\" );
+//				}
+//				else if( c == '\b' )
+//				{
+//					builder.Append( "\\b" );
+//				}
+//				else if( c == '\f' )
+//				{
+//					builder.Append( "\\f" );
+//				}
+//				else if( c == '\n' )
+//				{
+//					builder.Append( "\\n" );
+//				}
+//				else if( c == '\r' )
+//				{
+//					builder.Append( "\\r" );
+//				}
+//				else if( c == '\t' )
+//				{
+//					builder.Append( "\\t" );
+//				}
+//				else
+//				{
+//					int codepoint = Convert.ToInt32( c );
+//					if( ( codepoint >= 32 ) && ( codepoint <= 126 ) )
+//					{
+//						builder.Append( c );
+//					}
+//					else
+//					{
+//						builder.Append( "\\u" + Convert.ToString( codepoint, 16 ).PadLeft( 4, '0' ) );
+//					}
+//				}
+//			}
+
+			if( useQuotes )
+				builder.Append( QUOTEDSTRING_END_TOKEN );
+
+			return true;
+		}
+
+//		private bool SerializeNumber( int number, StringBuilder builder )
+//		{
+//			builder.Append( Convert.ToString( number ) ); // , CultureInfo.InvariantCulture));
+//			return true;
+//		}
+
+		#endregion
 	}
 }

@@ -7,12 +7,12 @@ namespace UnityEditor.XCodeEditor
 {
 	public class XCProject : System.IDisposable
 	{
-		//private XCFileOperationQueue _fileOperrationQueue;
+		private XCFileOperationQueue _fileOperrationQueue;
 		
 //		private string _filePath;
-		private Dictionary<string, string> _datastore;
-		private Dictionary<string, string> _groups;
-		private Dictionary<string, string> _configurations;
+		private Dictionary<string, object> _datastore;
+		private Dictionary<string, object> _groups;
+		private Dictionary<string, object> _configurations;
 		private string _defaultConfigurationName;
 		private string _rootObjectKey;
 	
@@ -48,10 +48,15 @@ namespace UnityEditor.XCodeEditor
 			string projPath = System.IO.Path.Combine( this.filePath, "project.pbxproj" );
 			string contents = System.IO.File.OpenText( projPath ).ReadToEnd();
 //			Debug.Log( System.IO.File.OpenText( projPath ).ReadToEnd );
-			
-			IDictionary dictionary = (Hashtable)MiniJSON.jsonDecode( contents );
-			 
-			Debug.Log( dictionary );
+
+			PBXParser parser = new PBXParser();
+			_datastore = (Dictionary<string, object>)parser.Decode( contents );
+			if( _datastore == null ) {
+				throw new System.Exception( "Project file not found at file path " + filePath );
+			}
+
+			_fileOperrationQueue = new XCFileOperationQueue();
+			_groups = new Dictionary<string, object>();
 			
 //			if ((self = [super init])) {
 //		        _filePath = [filePath copy];

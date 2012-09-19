@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace UnityEditor.XCodeEditor
@@ -32,8 +33,11 @@ namespace UnityEditor.XCodeEditor
 //			Debug.Log( System.IO.File.OpenText( projPath ).ReadToEnd );
 
 			PBXParser parser = new PBXParser();
-			Hashtable test = (Hashtable)parser.Decode( contents );
+//			Hashtable test = (Hashtable)parser.Decode( contents );
+			Dictionary<string, object> test = (Dictionary<string, object>)parser.Decode( contents );
 			Debug.Log( MiniJSON.jsonEncode( test ) );
+			Debug.Log( test + " - " + test.Count );
+			Debug.Log( parser.Encode( test ) );
 		}
 
 	}
