@@ -12,10 +12,27 @@ namespace UnityEditor.XCodeEditor
 		[MenuItem ("Build Tools/XCode Editor/DebugTest %t")]
 		static void DebugTest()
 		{
-			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
-			Debug.Log( "XcodePath: " + projectPath );
+//			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
+//			Debug.Log( "XcodePath: " + projectPath );
+//			
+//			XCProject currentProject = new XCProject( projectPath );
+			//Debug.Log(
+//			PBXDictionary test = new PBXDictionary();
+//			bool result = false;
+//			if( test is Dictionary<string, object> )
+//				result = true;
+//			
+//			Debug.Log( result );
 			
-			XCProject currentProject = new XCProject( projectPath );
+//			PBXType type = new PBXType();
+//			Debug.Log( "TYPE: " + type["isa"] );
+//			
+//			PBXBuildFile build = new PBXBuildFile( "" );
+//			Debug.Log( "BUILDFILE: " + build["isa"] );
+			
+			Debug.Log( PBXType.GenerateId().ToUpper() );
+			XCBuildConfigurationList test = new XCBuildConfigurationList();
+			
 		}
 		
 		
@@ -34,7 +51,7 @@ namespace UnityEditor.XCodeEditor
 
 			PBXParser parser = new PBXParser();
 //			Hashtable test = (Hashtable)parser.Decode( contents );
-			Dictionary<string, object> test = (Dictionary<string, object>)parser.Decode( contents );
+			PBXDictionary test = parser.Decode( contents );
 			Debug.Log( MiniJSON.jsonEncode( test ) );
 			Debug.Log( test + " - " + test.Count );
 			Debug.Log( parser.Encode( test ) );

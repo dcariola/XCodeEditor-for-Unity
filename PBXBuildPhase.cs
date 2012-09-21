@@ -1,0 +1,100 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace UnityEditor.XCodeEditor
+{
+	public class PBXBuildPhase : PBXType
+	{
+		protected const string FILES_KEY = "files";
+		
+		public bool AddBuildFile( PBXBuildFile file )
+		{
+			if( ((string)file[ ISA_KEY ]).CompareTo( "PBXBuildFile" ) != 0 )
+				return false;
+			
+			if( !ContainsKey( FILES_KEY ) )
+				this.Add( FILES_KEY, new PBXList() );
+			
+			((PBXList)this[ FILES_KEY ]).Add( file.id );
+			return true;
+		}
+		
+		public void RemoveBuildFile( string id )
+		{
+			if( !ContainsKey( FILES_KEY ) ) {
+				this.Add( FILES_KEY, new PBXList() );
+				return;
+			}
+			
+			((PBXList)this[ FILES_KEY ]).Remove( id );
+		}
+		
+		public bool HasBuildFile( string id )
+		{
+			if( !ContainsKey( FILES_KEY ) ) {
+				this.Add( FILES_KEY, new PBXList() );
+				return false;
+			}
+			
+			if( !IsGuid( id ) )
+				return false;
+			
+			return ((PBXList)this[ FILES_KEY ]).Contains( id );
+		}
+		
+//	class PBXBuildPhase(PBXType):
+//    def add_build_file(self, bf):
+//        if bf.get('isa') != 'PBXBuildFile':
+//            return False
+//
+//        if not self.has_key('files'):
+//            self['files'] = PBXList()
+//
+//        self['files'].add(bf.id)
+//
+//        return True
+//
+//    def remove_build_file(self, id):
+//        if not self.has_key('files'):
+//            self['files'] = PBXList()
+//            return
+//
+//        self['files'].remove(id)
+//
+//    def has_build_file(self, id):
+//        if not self.has_key('files'):
+//            self['files'] = PBXList()
+//            return False
+//
+//        if not PBXType.IsGuid(id):
+//            id = id.id
+//
+//        return id in self['files']
+	}
+	
+	public class PBXFrameworksBuildPhase : PBXBuildPhase
+	{
+		
+	}
+
+	public class PBXResourcesBuildPhase : PBXBuildPhase
+	{
+		
+	}
+
+	public class PBXShellScriptBuildPhase : PBXBuildPhase
+	{
+		
+	}
+
+	public class PBXSourcesBuildPhase : PBXBuildPhase
+	{
+		
+	}
+
+	public class PBXCopyFilesBuildPhase : PBXBuildPhase
+	{
+		
+	}
+}

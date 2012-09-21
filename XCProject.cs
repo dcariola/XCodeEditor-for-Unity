@@ -10,13 +10,18 @@ namespace UnityEditor.XCodeEditor
 		private XCFileOperationQueue _fileOperrationQueue;
 		
 //		private string _filePath;
-		private Dictionary<string, object> _datastore;
-		private Dictionary<string, object> _groups;
-		private Dictionary<string, object> _configurations;
+		private PBXDictionary _datastore;
+		private PBXDictionary _objects;
+		private PBXDictionary _groups;
+		private PBXDictionary _configurations;
+		private PBXDictionary _rootObject;
+		private PBXDictionary _rootGroup;
 		private string _defaultConfigurationName;
 		private string _rootObjectKey;
 	
 		public string filePath { get; private set; }
+		private string sourcePathRoot;
+		private bool modified = false;
 		
 		#region Constructor
 		
@@ -47,32 +52,29 @@ namespace UnityEditor.XCodeEditor
 			
 			string projPath = System.IO.Path.Combine( this.filePath, "project.pbxproj" );
 			string contents = System.IO.File.OpenText( projPath ).ReadToEnd();
-//			Debug.Log( System.IO.File.OpenText( projPath ).ReadToEnd );
 
 			PBXParser parser = new PBXParser();
-			_datastore = (Dictionary<string, object>)parser.Decode( contents );
+			_datastore = parser.Decode( contents );
 			if( _datastore == null ) {
 				throw new System.Exception( "Project file not found at file path " + filePath );
 			}
 
 			_fileOperrationQueue = new XCFileOperationQueue();
-			_groups = new Dictionary<string, object>();
+//			_groups = new Dictionary<string, object>();
+			_objects = (PBXDictionary)_datastore["objects"];
+			modified = false;
 			
-//			if ((self = [super init])) {
-//		        _filePath = [filePath copy];
-//		        _dataStore = [[NSMutableDictionary alloc]
-//		                initWithContentsOfFile:[_filePath stringByAppendingPathComponent:@"project.pbxproj"]];
-//		
-//		        if (!_dataStore) {
-//		            [NSException raise:NSInvalidArgumentException format:@"Project file not found at file path %@", _filePath];
-//		        }
-//		        
-//		        _fileOperationQueue =
-//		                [[XCFileOperationQueue alloc] initWithBaseDirectory:[_filePath stringByDeletingLastPathComponent]];
-//		
-//		        _groups = [[NSMutableDictionary alloc] init];
-//		    }
-//		    return self;
+			_rootObjectKey = (string)_datastore["rootObject"];
+			if( !string.IsNullOrEmpty( _rootObjectKey ) ) {
+				_rootObject = (PBXDictionary)_objects[ _rootObjectKey ];
+				_rootGroup = (PBXDictionary)_objects[ (string)_rootObject[ "mainGroup" ] ];
+			}
+			else {
+				Debug.LogWarning( "error: project has no root object" );
+				_rootObject = null;
+				_rootGroup = null;
+			}
+
 		}
 		
 		#endregion
@@ -163,9 +165,9 @@ namespace UnityEditor.XCodeEditor
 		#endregion
 		#region Groups
 		/**
-		* Lists the groups in an xcode project, returning an array of `XCGroup` objects.
+		* Lists the groups in an xcode project, returning an array of `PBXGroup` objects.
 		*/
-		public ArrayList groups {
+		public PBXList groups {
 			get {
 				return null;
 			}
@@ -174,7 +176,7 @@ namespace UnityEditor.XCodeEditor
 		/**
 		 * Returns the root (top-level) group.
 		 */
-		public XCGroup rootGroup {
+		public PBXGroup rootGroup {
 			get {
 				return null;	
 			}
@@ -192,7 +194,7 @@ namespace UnityEditor.XCodeEditor
 		/**
 		* Returns the group with the given key, or nil.
 		*/
-		public XCGroup GetGroupWithKey( string key )
+		public PBXGroup GetGroupWithKey( string key )
 		{
 			return null;
 		}
@@ -200,7 +202,7 @@ namespace UnityEditor.XCodeEditor
 		/**
 		 * Returns the group with the specified display name path - the directory relative to the root group. Eg Source/Main
 		 */
-		public XCGroup GetGroupWithPathFromRoot( string path )
+		public PBXGroup GetGroupWithPathFromRoot( string path )
 		{
 			return null;
 		}
@@ -208,7 +210,7 @@ namespace UnityEditor.XCodeEditor
 		/**
 		* Returns the parent group for the group or file with the given key;
 		*/
-		public XCGroup GetGroupForGroupMemberWithKey( string key )
+		public PBXGroup GetGroupForGroupMemberWithKey( string key )
 		{
 			return null;
 		}
@@ -216,7 +218,7 @@ namespace UnityEditor.XCodeEditor
 		/**
 		 * Returns the parent group for the group or file with the source file
 		 */
-		public XCGroup GetGroupWithSourceFile( XCSourceFile sourceFile )
+		public PBXGroup GetGroupWithSourceFile( XCSourceFile sourceFile )
 		{
 			return null;
 		}

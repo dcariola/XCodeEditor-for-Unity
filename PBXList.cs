@@ -1,0 +1,19 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace UnityEditor.XCodeEditor
+{
+	public class PBXList : ArrayList
+	{
+		
+	}
+	
+//	public class PBXList<T> : ArrayList
+//	{
+//		public int Add( T value )
+//		{
+//			return (ArrayList)this.Add( value );
+//		}
+//	}
+}
