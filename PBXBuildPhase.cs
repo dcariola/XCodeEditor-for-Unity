@@ -4,9 +4,19 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class PBXBuildPhase : PBXType
+	public class PBXBuildPhase : PBXObject
 	{
 		protected const string FILES_KEY = "files";
+		
+		public PBXBuildPhase()
+		{
+			Debug.Log( "base" );
+		}
+		
+		public PBXBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		{
+			Debug.Log( "constructor " + GetType().Name );
+		}
 		
 		public bool AddBuildFile( PBXBuildFile file )
 		{
@@ -16,7 +26,7 @@ namespace UnityEditor.XCodeEditor
 			if( !ContainsKey( FILES_KEY ) )
 				this.Add( FILES_KEY, new PBXList() );
 			
-			((PBXList)this[ FILES_KEY ]).Add( file.id );
+			((PBXList)this[ FILES_KEY ]).Add( file.guid );
 			return true;
 		}
 		
@@ -43,7 +53,7 @@ namespace UnityEditor.XCodeEditor
 			return ((PBXList)this[ FILES_KEY ]).Contains( id );
 		}
 		
-//	class PBXBuildPhase(PBXType):
+//	class PBXBuildPhase(PBXObject):
 //    def add_build_file(self, bf):
 //        if bf.get('isa') != 'PBXBuildFile':
 //            return False
@@ -67,7 +77,7 @@ namespace UnityEditor.XCodeEditor
 //            self['files'] = PBXList()
 //            return False
 //
-//        if not PBXType.IsGuid(id):
+//        if not PBXObject.IsGuid(id):
 //            id = id.id
 //
 //        return id in self['files']
@@ -75,26 +85,41 @@ namespace UnityEditor.XCodeEditor
 	
 	public class PBXFrameworksBuildPhase : PBXBuildPhase
 	{
-		
+		public PBXFrameworksBuildPhase( string guid, PBXDictionary dictionary ) //: base ( guid, dictionary )
+		{
+			Debug.Log( "constructor child" + GetType().Name );
+		}
 	}
 
 	public class PBXResourcesBuildPhase : PBXBuildPhase
 	{
-		
+		public PBXResourcesBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		{
+			Debug.Log( "constructor child" + GetType().Name );
+		}
 	}
 
 	public class PBXShellScriptBuildPhase : PBXBuildPhase
 	{
-		
+		public PBXShellScriptBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		{
+			Debug.Log( "constructor child" + GetType().Name );
+		}
 	}
 
 	public class PBXSourcesBuildPhase : PBXBuildPhase
 	{
-		
+		public PBXSourcesBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		{
+			Debug.Log( "constructor child" + GetType().Name );
+		}
 	}
 
 	public class PBXCopyFilesBuildPhase : PBXBuildPhase
 	{
-		
+		public PBXCopyFilesBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		{
+			Debug.Log( "constructor child" + GetType().Name );
+		}
 	}
 }

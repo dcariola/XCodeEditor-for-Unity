@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class PBXBuildFile : PBXType
+	public class PBXBuildFile : PBXObject
 	{
 		const string SETTINGS_KEY = "settings";
 		const string ATTRIBUTES_KEY = "ATTRIBUTES";
@@ -28,6 +28,10 @@ namespace UnityEditor.XCodeEditor
 //        return bf
 		}
 		
+		public PBXBuildFile( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
+		{
+			Debug.Log( "constructor child" );
+		}
 		
 		public bool SetWeakLink( bool weak = false )
 		{

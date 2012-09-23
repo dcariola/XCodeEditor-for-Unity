@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class XCBuildConfigurationList : PBXType
+	public class XCBuildConfiguration : PBXObject
 	{
 		protected const string BUILDSETTINGS_KEY = "buildSettings";
 		protected const string HEADER_SEARCH_PATH_KEY = "HEADER_SEARCH_PATH";

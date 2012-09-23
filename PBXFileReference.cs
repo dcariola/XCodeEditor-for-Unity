@@ -4,40 +4,108 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class PBXFileReference : PBXType
+	public class PBXFileReference : PBXObject
 	{
+		protected const string PATH_KEY = "path";
+		protected const string NAME_KEY = "name";
+		protected const string SOURCETREE_KEY = "sourceTree";
+		protected const string EXPLICIT_FILE_TYPE_KEY = "explicitFileType";
+		protected const string LASTKNOWN_FILE_TYPE_KEY = "lastKnownFileType";
+		protected const string ENCODING_KEY = "fileEncoding";
+		
 		public string buildPhase;
-		public readonly Dictionary<string, string> types = new Dictionary<string, string> {
-			{"a", "archive.ar" }
-//			{".a", {"archive.ar", "PBXFrameworksBuildPhase"}},
-//			{".app", {"wrapper.application", null }}
+		public readonly Dictionary<TreeEnum, string> trees = new Dictionary<TreeEnum, string> {
+			{ TreeEnum.ABSOLUTE, "<absolute>" },
+			{ TreeEnum.GROUP, "<group>" },
+			{ TreeEnum.BUILT_PRODUCTS_DIR, "BUILT_PRODUCTS_DIR" },
+        	{ TreeEnum.DEVELOPER_DIR, "DEVELOPER_DIR" },
+        	{ TreeEnum.SDKROOT, "SDKROOT" },
+        	{ TreeEnum.SOURCE_ROOT, "SOURCE_ROOT" }
 		};
-//        '.a':('archive.ar', 'PBXFrameworksBuildPhase'),
-//        '.app': ('wrapper.application', None),
-//        '.s': ('sourcecode.asm', 'PBXSourcesBuildPhase'),
-//        '.c': ('sourcecode.c.c', 'PBXSourcesBuildPhase'),
-//        '.cpp': ('sourcecode.cpp.cpp', 'PBXSourcesBuildPhase'),
-//        '.framework': ('wrapper.framework','PBXFrameworksBuildPhase'),
-//        '.h': ('sourcecode.c.h', None),
-//        '.icns': ('image.icns','PBXResourcesBuildPhase'),
-//        '.m': ('sourcecode.c.objc', 'PBXSourcesBuildPhase'),
-//        '.mm': ('sourcecode.cpp.objcpp', 'PBXSourcesBuildPhase'),
-//        '.nib': ('wrapper.nib', 'PBXResourcesBuildPhase'),
-//        '.plist': ('text.plist.xml', 'PBXResourcesBuildPhase'),
-//        '.png': ('image.png', 'PBXResourcesBuildPhase'),
-//        '.rtf': ('text.rtf', 'PBXResourcesBuildPhase'),
-//        '.tiff': ('image.tiff', 'PBXResourcesBuildPhase'),
-//        '.txt': ('text', 'PBXResourcesBuildPhase'),
-//        '.xcodeproj': ('wrapper.pb-project', None),
-//        '.xib': ('file.xib', 'PBXResourcesBuildPhase'),
-//        '.strings': ('text.plist.strings', 'PBXResourcesBuildPhase'),
-//        '.bundle': ('wrapper.plug-in', 'PBXResourcesBuildPhase'),
-//        '.dylib': ('compiled.mach-o.dylib', 'PBXFrameworksBuildPhase')
-//    }
+		
+		public static readonly Dictionary<string, string> typeNames = new Dictionary<string, string> {
+			{ ".a", "archive.ar" },
+			{ ".app", "wrapper.application" },
+			{ ".s", "sourcecode.asm" },
+			{ ".c", "sourcecode.c.c" },
+			{ ".cpp", "sourcecode.cpp.cpp" },
+			{ ".framework", "wrapper.framework" },
+			{ ".h", "sourcecode.c.h" },
+			{ ".icns", "image.icns" },
+			{ ".m", "sourcecode.c.objc" },
+			{ ".mm", "sourcecode.cpp.objcpp" },
+			{ ".nib", "wrapper.nib" },
+			{ ".plist", "text.plist.xml" },
+			{ ".png", "image.png" },
+			{ ".rtf", "text.rtf" },
+			{ ".tiff", "image.tiff" },
+			{ ".txt", "text" },
+			{ ".xcodeproj", "wrapper.pb-project" },
+			{ ".xib", "file.xib" },
+			{ ".strings", "text.plist.strings" },
+			{ ".bundle", "wrapper.plug-in" },
+			{ ".dylib", "compiled.mach-o.dylib" }
+   		 };
+		
+		public static readonly Dictionary<string, string> typePhases = new Dictionary<string, string> {
+			{ ".a", "PBXFrameworksBuildPhase" },
+			{ ".app", null },
+			{ ".s", "PBXSourcesBuildPhase" },
+			{ ".c", "PBXSourcesBuildPhase" },
+			{ ".cpp", "PBXSourcesBuildPhase" },
+			{ ".framework", "PBXFrameworksBuildPhase" },
+			{ ".h", null },
+			{ ".icns", "PBXResourcesBuildPhase" },
+			{ ".m", "PBXSourcesBuildPhase" },
+			{ ".mm", "PBXSourcesBuildPhase" },
+			{ ".nib", "PBXResourcesBuildPhase" },
+			{ ".plist", "PBXResourcesBuildPhase" },
+			{ ".png", "PBXResourcesBuildPhase" },
+			{ ".rtf", "PBXResourcesBuildPhase" },
+			{ ".tiff", "PBXResourcesBuildPhase" },
+			{ ".txt", "PBXResourcesBuildPhase" },
+			{ ".xcodeproj", null },
+			{ ".xib", "PBXResourcesBuildPhase" },
+			{ ".strings", "PBXResourcesBuildPhase" },
+			{ ".bundle", "PBXResourcesBuildPhase" },
+			{ ".dylib", "PBXFrameworksBuildPhase" }
+    	};
 		
 		public PBXFileReference() : base()
 		{
 			
+		}
+		
+		public PBXFileReference( string filePath, TreeEnum tree = TreeEnum.SOURCE_ROOT ) : this()
+		{
+			this.Add( PATH_KEY, filePath );
+			this.Add( NAME_KEY, System.IO.Path.GetFileName( filePath ) );
+			this.Add( SOURCETREE_KEY, (string)( System.IO.Path.IsPathRooted( filePath ) ? trees[TreeEnum.ABSOLUTE] : trees[tree] ) );
+			Debug.Log( "constructorX" );
+			this.GuessFileType();
+		}
+		
+		private void GuessFileType()
+		{
+			Debug.Log( "constructor1" );
+			this.Remove( EXPLICIT_FILE_TYPE_KEY );
+			Debug.Log( "constructor2" );
+			this.Remove( LASTKNOWN_FILE_TYPE_KEY );
+			Debug.Log( "constructor3" );
+			string extension = System.IO.Path.GetExtension( (string)this[ PATH_KEY ] );
+			Debug.Log( "constructor4 " + extension );
+			this.Add( LASTKNOWN_FILE_TYPE_KEY, PBXFileReference.typeNames[ extension ] );
+			Debug.Log( "constructor5" );
+			this.buildPhase = PBXFileReference.typePhases[ extension ];
+			Debug.Log( "constructor6" );
+		}
+		
+		private void SetFileType( string fileType )
+		{
+			this.Remove( EXPLICIT_FILE_TYPE_KEY );
+			this.Remove( LASTKNOWN_FILE_TYPE_KEY );
+			
+			this.Add( EXPLICIT_FILE_TYPE_KEY, fileType );
 		}
 		
 //	class PBXFileReference(PBXType):
@@ -114,5 +182,14 @@ namespace UnityEditor.XCodeEditor
 //        fr.guess_file_type()
 //
 //        return fr
+	}
+	
+	public enum TreeEnum {
+		ABSOLUTE,
+        GROUP,
+        BUILT_PRODUCTS_DIR,
+        DEVELOPER_DIR,
+        SDKROOT,
+        SOURCE_ROOT
 	}
 }

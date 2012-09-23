@@ -12,10 +12,10 @@ namespace UnityEditor.XCodeEditor
 		[MenuItem ("Build Tools/XCode Editor/DebugTest %t")]
 		static void DebugTest()
 		{
-//			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
+			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
 //			Debug.Log( "XcodePath: " + projectPath );
-//			
-//			XCProject currentProject = new XCProject( projectPath );
+			
+			XCProject currentProject = new XCProject( projectPath );
 			//Debug.Log(
 //			PBXDictionary test = new PBXDictionary();
 //			bool result = false;
@@ -30,8 +30,16 @@ namespace UnityEditor.XCodeEditor
 //			PBXBuildFile build = new PBXBuildFile( "" );
 //			Debug.Log( "BUILDFILE: " + build["isa"] );
 			
-			Debug.Log( PBXType.GenerateId().ToUpper() );
-			XCBuildConfigurationList test = new XCBuildConfigurationList();
+//			Debug.Log( PBXObject.GenerateGuid().ToUpper() );
+//			PBXList testList = currentProject.GetObjectOfType( "XCBuildConfiguration" );
+//			Debug.Log( testList.Count );
+//			Debug.Log( currentProject.rootGroup.guid + " " + currentProject.rootGroup.name + " " + currentProject.rootGroup.path);
+//			string path1 = "Data/mainData";
+			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/GameCenterBinding.m";
+			currentProject.AddFile( path2 );
+			
+//			Debug.Log( "Files: " + currentProject.buildFiles.Count );
+			
 			
 		}
 		
@@ -52,9 +60,11 @@ namespace UnityEditor.XCodeEditor
 			PBXParser parser = new PBXParser();
 //			Hashtable test = (Hashtable)parser.Decode( contents );
 			PBXDictionary test = parser.Decode( contents );
-			Debug.Log( MiniJSON.jsonEncode( test ) );
-			Debug.Log( test + " - " + test.Count );
-			Debug.Log( parser.Encode( test ) );
+//			Debug.Log( MiniJSON.jsonEncode( test ) );
+//			Debug.Log( test + " - " + test.Count );
+//			Debug.Log( parser.Encode( test ) );
+			
+			
 		}
 
 	}

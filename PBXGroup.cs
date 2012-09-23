@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class PBXGroup : PBXType
+	public class PBXGroup : PBXObject
 	{
 		protected const string NAME_KEY = "name";
 		protected const string CHILDREN_KEY = "children";
@@ -13,7 +13,7 @@ namespace UnityEditor.XCodeEditor
 		
 		public PBXGroup( string name, string path = null, string tree = "SOURCE_ROOT" ) : base()
 		{
-			this.id = GenerateId();
+//			this.id = GenerateId();
 			this.Add( NAME_KEY, name );
 			this.Add( CHILDREN_KEY, new PBXList() );
 			
@@ -26,38 +26,78 @@ namespace UnityEditor.XCodeEditor
 			}
 		}
 		
-		public string AddChild( PBXType child )
+		public PBXGroup( string guid, PBXDictionary dictionary ) : base( guid, dictionary )
+		{
+			
+		}
+		
+		#region Properties
+		
+		public string name {
+			get {
+				if( !ContainsKey( NAME_KEY ) ) {
+					return null;
+				}
+				return (string)this[NAME_KEY];
+			}
+		}
+		
+		public PBXList children {
+			get {
+				if( !ContainsKey( CHILDREN_KEY ) ) {
+					this.Add( CHILDREN_KEY, new PBXList() );
+				}
+				return (PBXList)this[CHILDREN_KEY];
+			}
+		}
+		
+		public string path {
+			get {
+				if( !ContainsKey( PATH_KEY ) ) {
+					return null;
+				}
+				return (string)this[PATH_KEY];
+			}
+		}
+		
+		public string sourceTree {
+			get {
+				return (string)this[SOURCETREE_KEY];
+			}
+		}
+		
+		#endregion
+		
+		
+		public string AddChild( PBXObject child )
 		{
 			if( !( child is PBXDictionary ) )
-				return null;
-			return "";
+				return "";
+//			return "";
 			
 			string isa = (string)child[ ISA_KEY ];
 			if( string.Compare( isa, "PBXFileReference" ) != 0 || string.Compare( isa, "PBXGroup" ) != 0 )
 				return null;
 			
-			PBXList children;
-			if( !ContainsKey( CHILDREN_KEY ) ) {
-				children = new PBXList();
-				this.Add( CHILDREN_KEY, children );
-			}
+//			if( !ContainsKey( CHILDREN_KEY ) ) {
+//				this.Add( CHILDREN_KEY, new PBXList() );
+//			}
 			
-//			((PBXList)this["children"]).Add( child.id );
-			children.Add( child.id );
-			return child.id;
+			children.Add( child.guid );
+			return child.guid;
 		}
 		
 		public void RemoveChild( string id )
 		{
-			if( !ContainsKey( CHILDREN_KEY ) ) {
-				this.Add( CHILDREN_KEY, new PBXList() );
-				return;
-			}
+//			if( !ContainsKey( CHILDREN_KEY ) ) {
+//				this.Add( CHILDREN_KEY, new PBXList() );
+//				return;
+//			}
 			
 			if( !IsGuid( id ) )
 				return;
 			
-			((PBXList)this[ CHILDREN_KEY ]).Remove( id );
+			children.Remove( id );
 		}
 		
 		public bool HasChild( string id )
@@ -78,7 +118,7 @@ namespace UnityEditor.XCodeEditor
 			return (string)this[ NAME_KEY ];
 		}
 		
-//	class PBXGroup(PBXType):
+//	class PBXGroup(PBXObject):
 //    def add_child(self, ref):
 //        if not isinstance(ref, PBXDict):
 //            return None
@@ -100,7 +140,7 @@ namespace UnityEditor.XCodeEditor
 //            self['children'] = PBXList()
 //            return
 //
-//        if not PBXType.IsGuid(id):
+//        if not PBXObject.IsGuid(id):
 //            id = id.id
 //
 //        self['children'].remove(id)
@@ -110,7 +150,7 @@ namespace UnityEditor.XCodeEditor
 //            self['children'] = PBXList()
 //            return False
 //
-//        if not PBXType.IsGuid(id):
+//        if not PBXObject.IsGuid(id):
 //            id = id.id
 //
 //        return id in self['children']

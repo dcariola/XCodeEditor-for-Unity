@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class XCConfigurationList : PBXType
+	public class XCConfigurationList : PBXObject
 	{	
 //		XCBuildConfigurationList buildConfigurations;
 //		bool defaultConfigurationIsVisible = false;

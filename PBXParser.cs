@@ -151,6 +151,26 @@ namespace UnityEditor.XCodeEditor
 					return ParseEntity();
 			}
 		}
+		
+//		private T Convert<T>( PBXDictionary dictionary )
+//		{
+//			if( dictionary.ContainsKey( "isa" ) ){
+////				((string)dictionary["isa"]).CompareTo(
+//				Type targetType = Type.GetType( (string)dictionary["isa"] );
+//				if( targetType.IsSubclassOf( typeof(PBXObject) ) ) {
+//					Debug.Log( "ok" );
+//					T converted = (T)Activator.CreateInstance( targetType );
+//					return converted;
+//				}
+//				else {
+//					Debug.Log( "Warning: unknown PBX type: " + targetType.Name );
+//					return default(T);
+//				}
+//				
+//			}
+//			return default(T);
+//			
+//		}
 
 		private PBXDictionary ParseDictionary()
 		{
