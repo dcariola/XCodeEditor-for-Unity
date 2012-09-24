@@ -222,28 +222,57 @@ namespace UnityEditor.XCodeEditor
 		
 		public bool AddOtherCFlags( string flag )
 		{
-			AddOtherCFlags( new PBXList( flag ) ); 
-			return true;
+			return AddOtherCFlags( new PBXList( flag ) ); 
 		}
 		
 		public bool AddOtherCFlags( PBXList flags )
 		{
-			foreach( XCBuildConfiguration buildConfig in GetObjectOfType( "XCBuildConfiguration" ) ) {
-				buildConfig.AddOtherCFlags( flags );
+			foreach( KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations ) {
+				buildConfig.Value.AddOtherCFlags( flags );
 			}
-			return true;	
+			modified = true;
+			return modified;	
 		}
 		
-		public PBXList GetObjectOfType( string type )
+		public bool AddHeaderSearchPaths( string path )
 		{
-			PBXList result = new PBXList();
-			foreach( KeyValuePair<string, object> current in _objects ) {
-				//Debug.Log( "object: " + ((PBXDictionary)current.Value)["isa"] );
-				if( string.Compare( (string)((PBXDictionary)current.Value)["isa"], type ) == 0 )
-					result.Add( current.Value );
-			}
-			return result;
+			return AddHeaderSearchPaths( new PBXList( path ) );
 		}
+		
+		public bool AddHeaderSearchPaths( PBXList paths )
+		{
+			foreach( KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations ) {
+				buildConfig.Value.AddHeaderSearchPaths( paths );
+			}
+			modified = true;
+			return modified;
+		}
+		
+		public bool AddLibrarySearchPaths( string path )
+		{
+			return AddLibrarySearchPaths( new PBXList( path ) );
+		}
+		
+		public bool AddLibrarySearchPaths( PBXList paths )
+		{
+			foreach( KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations ) {
+				buildConfig.Value.AddLibrarySearchPaths( paths );
+			}
+			modified = true;
+			return modified;
+		}
+		
+		
+//		public PBXList GetObjectOfType( string type )
+//		{
+//			PBXList result = new PBXList();
+//			foreach( KeyValuePair<string, object> current in _objects ) {
+//				//Debug.Log( "object: " + ((PBXDictionary)current.Value)["isa"] );
+//				if( string.Compare( (string)((PBXDictionary)current.Value)["isa"], type ) == 0 )
+//					result.Add( current.Value );
+//			}
+//			return result;
+//		}
 		
 		public object GetObject( string guid )
 		{
@@ -284,12 +313,9 @@ namespace UnityEditor.XCodeEditor
 					System.Uri fileURI = new System.Uri( filePath );
 					System.Uri rootURI = new System.Uri( this.filePath );
 					filePath = rootURI.MakeRelativeUri( fileURI ).ToString();
-					Debug.Log( "relativePath1: " + fileURI.MakeRelativeUri( rootURI ).ToString() );
-					Debug.Log( "relativePath2: " + rootURI.MakeRelativeUri( fileURI ).ToString() );
 				}
 				else {
 					tree = "<absolute>";
-					Debug.Log( "Absolute path: " + filePath );
 				}
 			}
 			
@@ -298,45 +324,73 @@ namespace UnityEditor.XCodeEditor
 			if( parent == null ) {
 				parent = _rootGroup;
 			}
-			
-			Debug.Log( "Start1!" );
-			
+						
 			PBXFileReference fileReference = new PBXFileReference( filePath, (TreeEnum)System.Enum.Parse( typeof(TreeEnum), tree ) );
-			Debug.Log( "Start2!" );
 			parent.AddChild( fileReference );
-			Debug.Log( "Start3!" );
+			fileReferences.AddObject( fileReference );
 			results.Add( fileReference.guid, fileReference );
-			Debug.Log( "Start4!" );
 			
 			//Create a build file for reference
 			if( !string.IsNullOrEmpty( fileReference.buildPhase ) && createBuildFiles ) {
 //				PBXDictionary<PBXBuildPhase> currentPhase = GetBuildPhase( fileReference.buildPhase );
+				PBXBuildFile buildFile;
 				switch( fileReference.buildPhase ) {
 					case "PBXFrameworksBuildPhase":
 						Debug.Log( frameworkBuildPhases.Count );
-						foreach( KeyValuePair<string, PBXFrameworksBuildPhase> currentObject in frameworkBuildPhases )
+						foreach( KeyValuePair<string, PBXFrameworksBuildPhase> currentObject in frameworkBuildPhases ) {
 							Debug.Log( "FR: " + currentObject.Key );
+							buildFile = new PBXBuildFile( filePath, weak );
+							buildFiles.AddObject( buildFile );
+							currentObject.Value.AddBuildFile( buildFile );
+							results.Add( buildFile.guid, buildFile );
+						}
+						if ( !string.IsNullOrEmpty( absPath ) && ( tree.CompareTo( "SOURCE_ROOT" ) == 0 ) && File.Exists( absPath ) ) {
+							string libraryPath = Path.Combine( "$(SRCROOT)", Path.GetDirectoryName( filePath ) );
+//							this.AddLibrarySearchPath( new PBXList( libraryPath ), recursive ); 
+						}
 						break;
-//						return (PBXDictionary<PBXBuildPhase>)frameworkBuildPhases;
-//					case "PBXResourcesBuildPhase":
-//						return (PBXDictionary<PBXBuildPhase>)resourcesBuildPhases;
-//					case "PBXShellScriptBuildPhase":
-//						return (PBXDictionary<PBXBuildPhase>)shellScriptBuildPhases;
-					case "PBXSourcesBuildPhase":
-						foreach( KeyValuePair<string, PBXSourcesBuildPhase> currentObject in sourcesBuildPhases ) {
+					case "PBXResourcesBuildPhase":
+						foreach( KeyValuePair<string, PBXResourcesBuildPhase> currentObject in resourcesBuildPhases ) {
 							Debug.Log( "SR: " + currentObject.Key );
-							PBXBuildFile buildFile = new PBXBuildFile( filePath, weak );
+							buildFile = new PBXBuildFile( filePath, weak );
+							buildFiles.AddObject( buildFile );
 							currentObject.Value.AddBuildFile( buildFile );
 							results.Add( buildFile.guid, buildFile );
 						}
 						break;
-//					case "PBXCopyFilesBuildPhase":
-//						return (PBXDictionary<PBXBuildPhase>)copyBuildPhases;
-//					default:
-//						return default(T);
+					case "PBXShellScriptBuildPhase":
+						foreach( KeyValuePair<string, PBXShellScriptBuildPhase> currentObject in shellScriptBuildPhases ) {
+							Debug.Log( "SR: " + currentObject.Key );
+							buildFile = new PBXBuildFile( filePath, weak );
+							buildFiles.AddObject( buildFile );
+							currentObject.Value.AddBuildFile( buildFile );
+							results.Add( buildFile.guid, buildFile );
+						}
+						break;
+					case "PBXSourcesBuildPhase":
+						foreach( KeyValuePair<string, PBXSourcesBuildPhase> currentObject in sourcesBuildPhases ) {
+							Debug.Log( "SR: " + currentObject.Key );
+							buildFile = new PBXBuildFile( filePath, weak );
+							buildFiles.AddObject( buildFile );
+							currentObject.Value.AddBuildFile( buildFile );
+							results.Add( buildFile.guid, buildFile );
+						}
+						break;
+					case "PBXCopyFilesBuildPhase":
+						foreach( KeyValuePair<string, PBXCopyFilesBuildPhase> currentObject in copyBuildPhases ) {
+							Debug.Log( "SR: " + currentObject.Key );
+							buildFile = new PBXBuildFile( filePath, weak );
+							buildFiles.AddObject( buildFile );
+							currentObject.Value.AddBuildFile( buildFile );
+							results.Add( buildFile.guid, buildFile );
+						}
+						break;
+					case null:
+						break;
+					default:
+						Debug.LogWarning( "fase non supportata" );
+						return null;
 				}
-				
-//				Debug.Log( currentPhase.Count );
 			}
 			
 			Debug.Log( "Results " + results.Count + " - " );
@@ -369,7 +423,6 @@ namespace UnityEditor.XCodeEditor
 //        parent.add_child(file_ref)
 //        results.append(file_ref)
 //        # create a build file for the file ref
-			
 //        if file_ref.build_phase and create_build_files:
 //            phases = self.get_build_phases(file_ref.build_phase)
 //
@@ -395,6 +448,160 @@ namespace UnityEditor.XCodeEditor
 //        return results
 		}
 		
+		public bool AddFolder( string folderPath, PBXGroup parent = null, string exclude = null, bool recursive = true, bool createBuildFile = true )
+		{
+			if( !Directory.Exists( folderPath ) )
+				return false;
+			
+			if( exclude == null )
+				exclude = "";
+			
+			PBXDictionary results = new PBXDictionary();
+			
+			if( parent == null )
+				parent = rootGroup;
+			
+			// Create group
+			PBXGroup newGroup = GetGroup( Path.GetDirectoryName(folderPath), null /*relative path*/, parent );
+			
+//			foreach( string directory in Directory.GetDirectories( folderPath ) )
+//			{
+//				
+//			}
+			
+			
+			modified = true;
+			return modified;
+//		def add_folder(self, os_path, parent=None, excludes=None, recursive=True, create_build_files=True):
+//        if not os.path.isdir(os_path):
+//            return []
+//
+//        if not excludes:
+//            excludes = []
+//
+//        results = []
+//
+//        if not parent:
+//            parent = self.root_group
+//        elif not isinstance(parent, PBXGroup):
+//            # assume it's an id
+//            parent = self.objects.get(parent, self.root_group)
+//
+//        path_dict = {os.path.split(os_path)[0]:parent}
+//        special_list = []
+//
+//        for (grp_path, subdirs, files) in os.walk(os_path):
+//            parent_folder, folder_name = os.path.split(grp_path)
+//            parent = path_dict.get(parent_folder, parent)
+//
+//            if [sp for sp in special_list if parent_folder.startswith(sp)]:
+//                continue
+//
+//            if folder_name.startswith('.'):
+//                special_list.append(grp_path)
+//                continue
+//
+//            if os.path.splitext(grp_path)[1] in XcodeProject.special_folders:
+//                # if this file has a special extension (bundle or framework mainly) treat it as a file
+//                special_list.append(grp_path)
+//
+//                new_files = self.verify_files([folder_name], parent=parent)
+//
+//                if new_files:
+//                    results.extend(self.add_file(grp_path, parent, create_build_files=create_build_files))
+//
+//                continue
+//
+//            # create group
+//            grp = self.get_or_create_group(folder_name, path=self.get_relative_path(grp_path) , parent=parent)
+//            path_dict[grp_path] = grp
+//
+//            results.append(grp)
+//
+//            file_dict = {}
+//
+//            for f in files:
+//                if f[0] == '.' or [m for m in excludes if re.match(m,f)]:
+//                    continue
+//
+//                kwds = {
+//                    'create_build_files': create_build_files,
+//                    'parent': grp,
+//                    'name': f
+//                }
+//
+//                f_path = os.path.join(grp_path, f)
+//
+//                file_dict[f_path] = kwds
+//
+//            new_files = self.verify_files([n.get('name') for n in file_dict.values()], parent=grp)
+//
+//            add_files = [(k,v) for k,v in file_dict.items() if v.get('name') in new_files]
+//
+//            for path, kwds in add_files:
+//                kwds.pop('name', None)
+//
+//                self.add_file(path, **kwds)
+//
+//            if not recursive:
+//                break
+//
+//        for r in results:
+//            self.objects[r.id] = r
+//
+//        return results
+		}
+		
+		#endregion
+		#region Getters
+		
+		public PBXGroup GetGroup( string name, string path = null, PBXGroup parent = null )
+		{
+			if( string.IsNullOrEmpty( name ) )
+				return null;
+			
+			if( parent == null )
+				parent = rootGroup;
+			
+			foreach( KeyValuePair<string, PBXGroup> current in groups ) {
+				if( current.Value.name.CompareTo( name ) == 0 && parent.HasChild( current.Key ) ) {
+					return current.Value;
+				}
+			}
+			
+			PBXGroup result = new PBXGroup( name, path );
+			groups.AddObject( result );
+			parent.AddChild( result );
+			
+			modified = true;
+			return result;
+			
+//		def get_or_create_group(self, name, path=None, parent=None):
+//        if not name:
+//            return None
+//
+//        if not parent:
+//            parent = self.root_group
+//        elif not isinstance(parent, PBXGroup):
+//            # assume it's an id
+//            parent = self.objects.get(parent, self.root_group)
+//
+//        groups = self.get_groups_by_name(name)
+//
+//        for grp in groups:
+//            if parent.has_child(grp.id):
+//                return grp
+//
+//        grp = PBXGroup.Create(name, path)
+//        parent.add_child(grp)
+//
+//        self.objects[grp.id] = grp
+//
+//        self.modified = True
+//
+//        return grp
+		}
+			
 		#endregion
 //		#region Files
 //

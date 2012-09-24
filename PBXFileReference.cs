@@ -81,23 +81,16 @@ namespace UnityEditor.XCodeEditor
 			this.Add( PATH_KEY, filePath );
 			this.Add( NAME_KEY, System.IO.Path.GetFileName( filePath ) );
 			this.Add( SOURCETREE_KEY, (string)( System.IO.Path.IsPathRooted( filePath ) ? trees[TreeEnum.ABSOLUTE] : trees[tree] ) );
-			Debug.Log( "constructorX" );
 			this.GuessFileType();
 		}
 		
 		private void GuessFileType()
 		{
-			Debug.Log( "constructor1" );
 			this.Remove( EXPLICIT_FILE_TYPE_KEY );
-			Debug.Log( "constructor2" );
 			this.Remove( LASTKNOWN_FILE_TYPE_KEY );
-			Debug.Log( "constructor3" );
 			string extension = System.IO.Path.GetExtension( (string)this[ PATH_KEY ] );
-			Debug.Log( "constructor4 " + extension );
 			this.Add( LASTKNOWN_FILE_TYPE_KEY, PBXFileReference.typeNames[ extension ] );
-			Debug.Log( "constructor5" );
 			this.buildPhase = PBXFileReference.typePhases[ extension ];
-			Debug.Log( "constructor6" );
 		}
 		
 		private void SetFileType( string fileType )

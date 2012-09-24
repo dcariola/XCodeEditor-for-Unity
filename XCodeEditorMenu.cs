@@ -35,31 +35,37 @@ namespace UnityEditor.XCodeEditor
 //			Debug.Log( testList.Count );
 //			Debug.Log( currentProject.rootGroup.guid + " " + currentProject.rootGroup.name + " " + currentProject.rootGroup.path);
 //			string path1 = "Data/mainData";
-			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/GameCenterBinding.m";
-			currentProject.AddFile( path2 );
+//			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/GameCenterBinding.m";
+//			currentProject.AddFile( path2 );
 			
 //			Debug.Log( "Files: " + currentProject.buildFiles.Count );
+			currentProject.AddOtherCFlags( "TEST_FLAG" );
 			
-			
+			foreach( KeyValuePair<string, XCBuildConfiguration> config in currentProject.buildConfigurations ) {
+				Debug.Log( "C: " + config.Value.buildSettings["OTHER_CFLAGS"] );
+				foreach( string keys in (PBXList)config.Value.buildSettings["OTHER_CFLAGS"]  )
+					Debug.Log( keys );
+			}
+				
 		}
 		
 		
 		[MenuItem ("Build Tools/XCode Editor/DebugTest2 %y")]
 		static void DebugTest2()
 		{
-			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
+//			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
 			
 //			string[] files = System.IO.Directory.GetFiles( projectPath, "Info.plist" );
 //			string contents = System.IO.File.OpenText( files[0] ).ReadToEnd();
 			
-			string[] projects = System.IO.Directory.GetDirectories( projectPath, "*.xcodeproj" );
-			string projPath = System.IO.Path.Combine( projects[0], "project.pbxproj" );
-			string contents = System.IO.File.OpenText( projPath ).ReadToEnd();
+//			string[] projects = System.IO.Directory.GetDirectories( projectPath, "*.xcodeproj" );
+//			string projPath = System.IO.Path.Combine( projects[0], "project.pbxproj" );
+//			string contents = System.IO.File.OpenText( projPath ).ReadToEnd();
 //			Debug.Log( System.IO.File.OpenText( projPath ).ReadToEnd );
 
-			PBXParser parser = new PBXParser();
+//			PBXParser parser = new PBXParser();
 //			Hashtable test = (Hashtable)parser.Decode( contents );
-			PBXDictionary test = parser.Decode( contents );
+//			PBXDictionary test = parser.Decode( contents );
 //			Debug.Log( MiniJSON.jsonEncode( test ) );
 //			Debug.Log( test + " - " + test.Count );
 //			Debug.Log( parser.Encode( test ) );

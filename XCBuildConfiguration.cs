@@ -6,39 +6,54 @@ namespace UnityEditor.XCodeEditor
 	public class XCBuildConfiguration : PBXObject
 	{
 		protected const string BUILDSETTINGS_KEY = "buildSettings";
-		protected const string HEADER_SEARCH_PATH_KEY = "HEADER_SEARCH_PATH";
-		protected const string LIBRARY_SEARCH_PATH_KEY = "LIBRARY_SEARCH_PATH";
+		protected const string HEADER_SEARCH_PATHS_KEY = "HEADER_SEARCH_PATHS";
+		protected const string LIBRARY_SEARCH_PATHS_KEY = "LIBRARY_SEARCH_PATHS";
 		protected const string OTHER_C_FLAGS_KEY = "OTHER_CFLAGS";
 		
-		public bool AddSearchPaths( string path, string basePath, string key, bool recursive = true )
+		public XCBuildConfiguration( string guid, PBXDictionary dictionary ) : base( guid, dictionary )
+		{
+			
+		}
+		
+		public PBXDictionary buildSettings {
+			get {
+				if( ContainsKey( BUILDSETTINGS_KEY ) )
+					return (PBXDictionary)this[BUILDSETTINGS_KEY];
+				
+				Debug.Log( "strano" );
+				return null;
+			}
+		}
+		
+		protected bool AddSearchPaths( string path, string key, bool recursive = true )
 		{
 			PBXList paths = new PBXList();
 			paths.Add( path );
-			return AddSearchPaths( paths, basePath, key, recursive );
+			return AddSearchPaths( paths, key, recursive );
 		}
 		
-		public bool AddSearchPaths( PBXList paths, string basePath, string key, bool recursive = true )
-		{
+		protected bool AddSearchPaths( PBXList paths, string key, bool recursive = true )
+		{	
 			bool modified = false;
 			
-			if( !ContainsKey( basePath ) )
-				this.Add( basePath, new PBXDictionary() );
+			if( !ContainsKey( BUILDSETTINGS_KEY ) )
+				this.Add( BUILDSETTINGS_KEY, new PBXDictionary() );
 			
 			foreach( string path in paths ) {
 				string currentPath = path;
 				if( recursive && !path.EndsWith( "/**" ) )
 					currentPath += "**";
 				
-				if( !((PBXDictionary)this[basePath]).ContainsKey( key ) ) {
-					((PBXDictionary)this[basePath]).Add( key, new PBXList() );
+				if( !((PBXDictionary)this[BUILDSETTINGS_KEY]).ContainsKey( key ) ) {
+					((PBXDictionary)this[BUILDSETTINGS_KEY]).Add( key, new PBXList() );
 				}
-				else if( ((PBXDictionary)this[basePath])[key] is string ) {
+				else if( ((PBXDictionary)this[BUILDSETTINGS_KEY])[key] is string ) {
 					PBXList list = new PBXList();
-					list.Add( ((PBXDictionary)this[basePath])[key] );
-					((PBXDictionary)this[basePath])[key] = list;
+					list.Add( ((PBXDictionary)this[BUILDSETTINGS_KEY])[key] );
+					((PBXDictionary)this[BUILDSETTINGS_KEY])[key] = list;
 				}
 				
-				if( ((PBXList)((PBXDictionary)this[basePath])[key]).Add( "\"" + currentPath + "\"" ) >= 0 ) {
+				if( ((PBXList)((PBXDictionary)this[BUILDSETTINGS_KEY])[key]).Add( "\"" + currentPath + "\"" ) >= 0 ) {
 					modified = true;
 				}
 			}
@@ -48,16 +63,17 @@ namespace UnityEditor.XCodeEditor
 		
 		public bool AddHeaderSearchPaths( PBXList paths, bool recursive = true )
 		{
-			return this.AddSearchPaths( paths, "buildSettings", "HEADER_SEARCH_PATHS", recursive );
+			return this.AddSearchPaths( paths, HEADER_SEARCH_PATHS_KEY, recursive );
 		}
 		
-		public bool AddLibrarySearchPath( PBXList paths, bool recursive = true )
+		public bool AddLibrarySearchPaths( PBXList paths, bool recursive = true )
 		{
-			return this.AddSearchPaths( paths, "buildSettings", "LIBRARY_SEARCH_PATHS", recursive );
+			return this.AddSearchPaths( paths, LIBRARY_SEARCH_PATHS_KEY, recursive );
 		}
 		
 		public bool AddOtherCFlags( string flag )
 		{
+			Debug.Log( "INIZIO 1" );
 			PBXList flags = new PBXList();
 			flags.Add( flag );
 			return AddOtherCFlags( flags );
@@ -65,6 +81,8 @@ namespace UnityEditor.XCodeEditor
 		
 		public bool AddOtherCFlags( PBXList flags )
 		{
+			Debug.Log( "INIZIO 2" );
+			
 			bool modified = false;
 			
 			if( !ContainsKey( BUILDSETTINGS_KEY ) )

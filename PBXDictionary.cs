@@ -9,7 +9,7 @@ namespace UnityEditor.XCodeEditor
 		
 	}
 	
-	public class PBXDictionary<T> : Dictionary<string, T>
+	public class PBXDictionary<T> : Dictionary<string, T> where T : PBXObject
 	{
 		public PBXDictionary()
 		{
@@ -24,6 +24,11 @@ namespace UnityEditor.XCodeEditor
 					this.Add( currentItem.Key, instance );
 				}
 			}	
+		}
+		
+		public void AddObject( T newObject )
+		{
+			this.Add( newObject.guid, newObject );
 		}
 	}
 }
