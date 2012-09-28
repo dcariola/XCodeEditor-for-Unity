@@ -74,6 +74,9 @@ namespace UnityEditor.XCodeEditor
 		{
 			string sneak = string.Empty;
 			for( int i = 1; i <= step; i++ ) {
+				if( data.Length - 1 < index + i ) {
+					break;
+				}
 				sneak += data[ index + i ];
 			}
 			return sneak;
@@ -121,7 +124,7 @@ namespace UnityEditor.XCodeEditor
 		
 		private char StepForeward( int step = 1 )
 		{
-			index = Math.Min( data.Length + 1, index + step );
+			index = Math.Min( data.Length, index + step );
 			return data[ index ];
 		}
 		
@@ -188,19 +191,11 @@ namespace UnityEditor.XCodeEditor
 						break;
 
 					case DICTIONARY_ITEM_DELIMITER_TOKEN:
-//						if( string.IsNullOrEmpty( keyString ) ) {
-//							throw new System.Exception( "Missing key before assign token." );
-//						}
-
 						keyString = string.Empty;
 						valueObject = null;
 						break;
 
 					case DICTIONARY_END_TOKEN:
-//						if( !string.IsNullOrEmpty( keyString ) && valueObject != null ) {
-//
-//						}
-
 						keyString = string.Empty;
 						valueObject = null;
 						complete = true;
@@ -220,9 +215,9 @@ namespace UnityEditor.XCodeEditor
 			return dictionary;
 		}
 
-		private ArrayList ParseArray()
+		private PBXList ParseArray()
 		{
-			ArrayList list = new ArrayList();
+			PBXList list = new PBXList();
 			bool complete = false;
 			while( !complete ) {
 				switch( NextToken() ) {
@@ -263,16 +258,15 @@ namespace UnityEditor.XCodeEditor
 		private object ParseEntity()
 		{
 			string word = string.Empty;
-			char c = StepForeward();
-
-			while( !Regex.IsMatch( c.ToString(), @"[;,\s=]" ) ) {
-				word += c;
-				c = StepForeward();
+			
+			while( !Regex.IsMatch( Peek(), @"[;,\s=]" ) ) {
+				word += StepForeward();
 			}
 
-			if( word.Length != 24 && Regex.IsMatch( word, @"^\d+$" ) )
+			if( word.Length != 24 && Regex.IsMatch( word, @"^\d+$" ) ) {
 				return Int32.Parse( word );
-
+			}
+			
 			return word;
 		}
 
@@ -284,8 +278,11 @@ namespace UnityEditor.XCodeEditor
 			if( value == null ) {
 				builder.Append( "null" );
 			}
+			else if( value is PBXObject ) {
+				SerializeDictionary( ((PBXObject)value).data, builder, readable );
+			}
 			else if( value is Dictionary<string, object> ) {
-				SerializeDictionary( (Dictionary<string, object> )value, builder, readable );
+				SerializeDictionary( (Dictionary<string, object>)value, builder, readable );
 			}
 			else if( value.GetType().IsArray ) {
 				SerializeArray( new ArrayList( (ICollection)value ), builder, readable );
@@ -311,13 +308,14 @@ namespace UnityEditor.XCodeEditor
 //			}
 //			else if( ( value is Boolean ) && ( (Boolean)value == true ) )
 //			{
-//				builder.Append( "true" );
+//				builder.Append( "NO" );
 //			}
 //			else if( ( value is Boolean ) && ( (Boolean)value == false ) )
 //			{
-//				builder.Append( "false" );
+//				builder.Append( "YES" );
 //			}
 			else {
+				Debug.LogWarning( "Error: unknown object of type " + value.GetType().Name );
 				return false;
 			}
 	

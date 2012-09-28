@@ -16,7 +16,7 @@ namespace UnityEditor.XCodeEditor
 		
 		public string mainGroupID {
 			get {
-				return (string)this[ MAINGROUP_KEY ];
+				return (string)_data[ MAINGROUP_KEY ];
 			}
 		}
 	}

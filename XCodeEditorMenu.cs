@@ -11,7 +11,7 @@ namespace UnityEditor.XCodeEditor
 
 		[MenuItem ("Build Tools/XCode Editor/DebugTest %t")]
 		static void DebugTest()
-		{
+		{	
 			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
 //			Debug.Log( "XcodePath: " + projectPath );
 			
@@ -35,18 +35,28 @@ namespace UnityEditor.XCodeEditor
 //			Debug.Log( testList.Count );
 //			Debug.Log( currentProject.rootGroup.guid + " " + currentProject.rootGroup.name + " " + currentProject.rootGroup.path);
 //			string path1 = "Data/mainData";
-//			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/GameCenterBinding.m";
+			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/";
 //			currentProject.AddFile( path2 );
+			Debug.Log( "Objects: " + currentProject._objects.Count );
+			Debug.Log( "Files: " + currentProject.buildFiles.Count );
+			Debug.Log( "Groups: " + currentProject.groups.Count );
+			string[] excludes = new string[] {"^.*\\.meta$", "^.*\\.mdown^", "^.*\\.pdf$"};
+			currentProject.AddFolder( path2, null, excludes );
+			currentProject.Consolidate();
+			Debug.Log( "Objects: " + currentProject._objects.Count );
+			currentProject.Save();
 			
-//			Debug.Log( "Files: " + currentProject.buildFiles.Count );
-			currentProject.AddOtherCFlags( "TEST_FLAG" );
+			//ALTRO
+//			currentProject.AddOtherCFlags( "TEST_FLAG" );
+//			
+//			foreach( KeyValuePair<string, XCBuildConfiguration> config in currentProject.buildConfigurations ) {
+//				Debug.Log( "C: " + config.Value.buildSettings["OTHER_CFLAGS"] );
+//				foreach( string keys in (PBXList)config.Value.buildSettings["OTHER_CFLAGS"]  )
+//					Debug.Log( keys );
+//			}
 			
-			foreach( KeyValuePair<string, XCBuildConfiguration> config in currentProject.buildConfigurations ) {
-				Debug.Log( "C: " + config.Value.buildSettings["OTHER_CFLAGS"] );
-				foreach( string keys in (PBXList)config.Value.buildSettings["OTHER_CFLAGS"]  )
-					Debug.Log( keys );
-			}
-				
+//			currentProject.Save();
+			
 		}
 		
 		

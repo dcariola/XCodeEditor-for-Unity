@@ -4,33 +4,64 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class PBXObject : PBXDictionary
+	public class PBXObject
 	{
 		protected const string ISA_KEY = "isa";
-		public string guid;
+		//
+		protected string _guid;
+		protected PBXDictionary _data;
+		
+		#region Properties
+		
+		public string guid {
+			get {
+				if( string.IsNullOrEmpty( _guid ) )
+					_guid = GenerateGuid();
+				
+				return _guid;
+			}
+		}
+		
+		public PBXDictionary data {
+			get {
+				if( _data == null )
+					_data = new PBXDictionary();
+				
+				return _data;
+			}
+		}
+		
+		
+		#endregion
+		#region Constructors
 		
 		public PBXObject()
 		{
-			this[ ISA_KEY ] = this.GetType().Name;
-			this.guid = GenerateGuid();
+			_data = new PBXDictionary();
+			_data[ ISA_KEY ] = this.GetType().Name;
+			_guid = GenerateGuid();
 		}
 		
 		public PBXObject( string guid ) : this()
 		{
 			if( IsGuid( guid ) )
-				this.guid = guid;
+				_guid = guid;
 		}
 		
-		public PBXObject( string guid, PBXDictionary dictionary )
+		public PBXObject( string guid, PBXDictionary dictionary ) : this( guid )
 		{
-			Debug.Log( "constructor parent " + this.GetType().Name );
-			if( IsGuid( guid ) )
-				this.guid = guid;
+//			Debug.Log( "constructor parent " + this.GetType().Name );
+			
+			if( !dictionary.ContainsKey( ISA_KEY ) || ((string)dictionary[ ISA_KEY ]).CompareTo( this.GetType().Name ) != 0 )
+				Debug.LogError( "PBXDictionary is not a valid ISA object" );
 			
 			foreach( KeyValuePair<string, object> item in dictionary ) {
-				this.Add( item.Key, item.Value );
+				_data[ item.Key ] = item.Value;
 			}
 		}
+		
+		#endregion
+		#region Static methods
 		
 		public static bool IsGuid( string aString )
 		{
@@ -42,6 +73,26 @@ namespace UnityEditor.XCodeEditor
 			return System.Guid.NewGuid().ToString("N").Substring( 8 ).ToUpper();
 		}
 		
+		
+		#endregion
+		#region Data manipulation
+		
+		public void Add( string key, object obj )
+		{
+			_data.Add( key, obj );
+		}
+		
+		public bool Remove( string key )
+		{
+			return _data.Remove( key );
+		}
+		
+		public bool ContainsKey( string key )
+		{
+			return _data.ContainsKey( key );
+		}
+		
+		#endregion
 //		class PBXObject(PBXDict):
 //    def __init__(self, d=None):
 //        PBXDict.__init__(self, d)
@@ -75,11 +126,17 @@ namespace UnityEditor.XCodeEditor
 	{
 		public PBXNativeTarget() : base() {
 		}
+		
+		public PBXNativeTarget( string guid, PBXDictionary dictionary ) : base( guid, dictionary ) {	
+		}
 	}
 
 	public class PBXContainerItemProxy : PBXObject
 	{
 		public PBXContainerItemProxy() : base() {
+		}
+		
+		public PBXContainerItemProxy( string guid, PBXDictionary dictionary ) : base( guid, dictionary ) {	
 		}
 	}
 
@@ -87,11 +144,17 @@ namespace UnityEditor.XCodeEditor
 	{
 		public PBXReferenceProxy() : base() {
 		}
+		
+		public PBXReferenceProxy( string guid, PBXDictionary dictionary ) : base( guid, dictionary ) {	
+		}
 	}
 
 	public class PBXVariantGroup : PBXObject
 	{
 		public PBXVariantGroup() : base() {
+		}
+		
+		public PBXVariantGroup( string guid, PBXDictionary dictionary ) : base( guid, dictionary ) {	
 		}
 	}
 }

@@ -6,10 +6,10 @@ namespace UnityEditor.XCodeEditor
 {
 	public class PBXBuildFile : PBXObject
 	{
-		const string SETTINGS_KEY = "settings";
-		const string ATTRIBUTES_KEY = "ATTRIBUTES";
-		const string WEAK_VALUE = "Weak";
-		const string COMPILER_FLAGS_KEY = "COMPILER_FLAGS";
+		private const string SETTINGS_KEY = "settings";
+		private const string ATTRIBUTES_KEY = "ATTRIBUTES";
+		private const string WEAK_VALUE = "Weak";
+		private const string COMPILER_FLAGS_KEY = "COMPILER_FLAGS";
 		
 		public PBXBuildFile( string fileRef, bool weak = false ) : base()
 		{
@@ -30,12 +30,12 @@ namespace UnityEditor.XCodeEditor
 		
 		public PBXBuildFile( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor child" );
+//			Debug.Log( "constructor child" );
 		}
 		
 		public bool SetWeakLink( bool weak = false )
 		{
-			PBXDictionary settings = this[SETTINGS_KEY] as PBXDictionary;
+			PBXDictionary settings = _data[SETTINGS_KEY] as PBXDictionary;
 			PBXList attributes = null;
 			
 			if( settings == null ) {

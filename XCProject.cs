@@ -3,27 +3,32 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace UnityEditor.XCodeEditor
 {
-	public class XCProject : System.IDisposable
+	public partial class XCProject : System.IDisposable
 	{
-//		private XCFileOperationQueue _fileOperrationQueue;
 		
 //		private string _filePath;
 		private PBXDictionary _datastore;
-		private PBXDictionary _objects;
-//		private PBXDictionary _groups;
+		public PBXDictionary _objects;
 		private PBXDictionary _configurations;
-		private PBXProject _project;
+		
 		private PBXGroup _rootGroup;
 		private string _defaultConfigurationName;
 		private string _rootObjectKey;
 	
+		public string projectRootPath { get; private set; }
+		private FileInfo projectFileInfo;
+		
 		public string filePath { get; private set; }
 		private string sourcePathRoot;
 		private bool modified = false;
 		
+		#region Data
+		
+		// Objects
 		private PBXDictionary<PBXBuildFile> _buildFiles;
 		private PBXDictionary<PBXGroup> _groups;
 		private PBXDictionary<PBXFileReference> _fileReferences;
@@ -34,14 +39,13 @@ namespace UnityEditor.XCodeEditor
 		private PBXDictionary<PBXShellScriptBuildPhase> _shellScriptBuildPhases;
 		private PBXDictionary<PBXSourcesBuildPhase> _sourcesBuildPhases;
 		private PBXDictionary<PBXCopyFilesBuildPhase> _copyBuildPhases;
-		
-//		private PBXDictionary<PBXBuildPhase> _buildPhases;
-		
+				
 		private PBXDictionary<XCBuildConfiguration> _buildConfigurations;
 		private PBXDictionary<XCConfigurationList> _configurationLists;
 		
+		private PBXProject _project;
 		
-		
+		#endregion
 		#region Constructor
 		
 		public XCProject()
@@ -53,35 +57,39 @@ namespace UnityEditor.XCodeEditor
 		{
 			if( !System.IO.Directory.Exists( filePath ) ) {
 				Debug.LogWarning( "Path does not exists." );
-//				throw 
 				return;
 			}
 			
 			if( filePath.EndsWith( ".xcodeproj" ) ) {
-				Debug.Log( "This is a project" );
+				Debug.Log( "Opening project " + filePath );
+				this.projectRootPath = Path.GetDirectoryName( filePath );
 				this.filePath = filePath;
 			} else {
-				Debug.Log( "Looking for xcodeproj files in the folder." );
+				Debug.Log( "Looking for xcodeproj files in " + filePath );
 				string[] projects = System.IO.Directory.GetDirectories( filePath, "*.xcodeproj" );
-				if( projects.Length > 0 ) {
-					Debug.Log( "Found: " + projects[ 0 ] );
-					this.filePath = projects[ 0 ];
-				}	
+				if( projects.Length == 0 ) {
+					Debug.LogWarning( "Error: missing xcodeproj file" );
+					return;
+				}
+				
+				this.projectRootPath = filePath;
+				this.filePath = projects[ 0 ];	
 			}
 			
-			sourcePathRoot = Directory.GetParent( filePath ).FullName + "/";
-			Debug.Log( "sourcepath: " + sourcePathRoot );
+			projectFileInfo = new FileInfo( Path.Combine( this.filePath, "project.pbxproj" ) );
+			string contents = projectFileInfo.OpenText().ReadToEnd();
 			
-			string projPath = System.IO.Path.Combine( this.filePath, "project.pbxproj" );
-			string contents = System.IO.File.OpenText( projPath ).ReadToEnd();
-
 			PBXParser parser = new PBXParser();
 			_datastore = parser.Decode( contents );
 			if( _datastore == null ) {
 				throw new System.Exception( "Project file not found at file path " + filePath );
 			}
 
-//			_fileOperrationQueue = new XCFileOperationQueue();
+			if( !_datastore.ContainsKey( "objects" ) ) {
+				Debug.Log( "Errore " + _datastore.Count );
+				return;
+			}
+			
 			_objects = (PBXDictionary)_datastore["objects"];
 			modified = false;
 			
@@ -171,9 +179,7 @@ namespace UnityEditor.XCodeEditor
 		
 		public PBXDictionary<PBXFrameworksBuildPhase> frameworkBuildPhases {
 			get {
-				Debug.Log( "USA" );
 				if( _frameworkBuildPhases == null ) {
-					Debug.Log( "NULL" );
 					_frameworkBuildPhases = new PBXDictionary<PBXFrameworksBuildPhase>( _objects );
 				}
 				return _frameworkBuildPhases;
@@ -319,15 +325,16 @@ namespace UnityEditor.XCodeEditor
 				}
 			}
 			
-			Debug.Log( "result path: " + filePath );
+			Debug.Log( "Add file result path: " + filePath );
 			
 			if( parent == null ) {
+				
 				parent = _rootGroup;
 			}
 						
 			PBXFileReference fileReference = new PBXFileReference( filePath, (TreeEnum)System.Enum.Parse( typeof(TreeEnum), tree ) );
 			parent.AddChild( fileReference );
-			fileReferences.AddObject( fileReference );
+			fileReferences.Add( fileReference );
 			results.Add( fileReference.guid, fileReference );
 			
 			//Create a build file for reference
@@ -340,7 +347,7 @@ namespace UnityEditor.XCodeEditor
 						foreach( KeyValuePair<string, PBXFrameworksBuildPhase> currentObject in frameworkBuildPhases ) {
 							Debug.Log( "FR: " + currentObject.Key );
 							buildFile = new PBXBuildFile( filePath, weak );
-							buildFiles.AddObject( buildFile );
+							buildFiles.Add( buildFile );
 							currentObject.Value.AddBuildFile( buildFile );
 							results.Add( buildFile.guid, buildFile );
 						}
@@ -351,36 +358,36 @@ namespace UnityEditor.XCodeEditor
 						break;
 					case "PBXResourcesBuildPhase":
 						foreach( KeyValuePair<string, PBXResourcesBuildPhase> currentObject in resourcesBuildPhases ) {
-							Debug.Log( "SR: " + currentObject.Key );
+							Debug.Log( "R: " + currentObject.Key );
 							buildFile = new PBXBuildFile( filePath, weak );
-							buildFiles.AddObject( buildFile );
+							buildFiles.Add( buildFile );
 							currentObject.Value.AddBuildFile( buildFile );
 							results.Add( buildFile.guid, buildFile );
 						}
 						break;
 					case "PBXShellScriptBuildPhase":
 						foreach( KeyValuePair<string, PBXShellScriptBuildPhase> currentObject in shellScriptBuildPhases ) {
-							Debug.Log( "SR: " + currentObject.Key );
+							Debug.Log( "Ss: " + currentObject.Key );
 							buildFile = new PBXBuildFile( filePath, weak );
-							buildFiles.AddObject( buildFile );
+							buildFiles.Add( buildFile );
 							currentObject.Value.AddBuildFile( buildFile );
 							results.Add( buildFile.guid, buildFile );
 						}
 						break;
 					case "PBXSourcesBuildPhase":
 						foreach( KeyValuePair<string, PBXSourcesBuildPhase> currentObject in sourcesBuildPhases ) {
-							Debug.Log( "SR: " + currentObject.Key );
+							Debug.Log( "Sb: " + currentObject.Key );
 							buildFile = new PBXBuildFile( filePath, weak );
-							buildFiles.AddObject( buildFile );
+							buildFiles.Add( buildFile );
 							currentObject.Value.AddBuildFile( buildFile );
 							results.Add( buildFile.guid, buildFile );
 						}
 						break;
 					case "PBXCopyFilesBuildPhase":
 						foreach( KeyValuePair<string, PBXCopyFilesBuildPhase> currentObject in copyBuildPhases ) {
-							Debug.Log( "SR: " + currentObject.Key );
+							Debug.Log( "Cp: " + currentObject.Key );
 							buildFile = new PBXBuildFile( filePath, weak );
-							buildFiles.AddObject( buildFile );
+							buildFiles.Add( buildFile );
 							currentObject.Value.AddBuildFile( buildFile );
 							results.Add( buildFile.guid, buildFile );
 						}
@@ -448,13 +455,14 @@ namespace UnityEditor.XCodeEditor
 //        return results
 		}
 		
-		public bool AddFolder( string folderPath, PBXGroup parent = null, string exclude = null, bool recursive = true, bool createBuildFile = true )
+		public bool AddFolder( string folderPath, PBXGroup parent = null, string[] exclude = null, bool recursive = true, bool createBuildFile = true )
 		{
 			if( !Directory.Exists( folderPath ) )
 				return false;
+			DirectoryInfo sourceDirectoryInfo = new DirectoryInfo( folderPath );
 			
 			if( exclude == null )
-				exclude = "";
+				exclude = new string[] {};
 			
 			PBXDictionary results = new PBXDictionary();
 			
@@ -462,12 +470,32 @@ namespace UnityEditor.XCodeEditor
 				parent = rootGroup;
 			
 			// Create group
-			PBXGroup newGroup = GetGroup( Path.GetDirectoryName(folderPath), null /*relative path*/, parent );
+			PBXGroup newGroup = GetGroup( sourceDirectoryInfo.Name, null /*relative path*/, parent );
+//			groups.Add( newGroup );
 			
-//			foreach( string directory in Directory.GetDirectories( folderPath ) )
-//			{
-//				
-//			}
+			foreach( string directory in Directory.GetDirectories( folderPath ) )
+			{
+//				special_folders = ['.bundle', '.framework', '.xcodeproj']	
+				if( Path.GetDirectoryName( directory ).EndsWith( ".bundle" ) ) {
+					// Treath it like a file and copy even if not recursive
+					Debug.Log( "This is a special folder" );
+				}
+				
+				if( recursive ) {
+					AddFolder( directory, newGroup, exclude, recursive, createBuildFile );
+				}
+			}
+			
+			Debug.Log( "Add files" );
+			string regexExclude = string.Format( @"{0}", string.Join( "|", exclude ) );
+			foreach( string file in Directory.GetFiles( folderPath ) ) {
+				if( Regex.IsMatch( file, regexExclude ) ) {
+					Debug.Log( "skipping "+file );
+					continue;
+				}
+				Debug.Log( "--> " + file + ", " + newGroup );
+				AddFile( file, newGroup, "SOURCE_ROOT", createBuildFile );
+			}
 			
 			
 			modified = true;
@@ -557,6 +585,7 @@ namespace UnityEditor.XCodeEditor
 		
 		public PBXGroup GetGroup( string name, string path = null, PBXGroup parent = null )
 		{
+			Debug.Log( "GetGroup: " + name + ", " + path + ", " + parent );
 			if( string.IsNullOrEmpty( name ) )
 				return null;
 			
@@ -564,13 +593,20 @@ namespace UnityEditor.XCodeEditor
 				parent = rootGroup;
 			
 			foreach( KeyValuePair<string, PBXGroup> current in groups ) {
-				if( current.Value.name.CompareTo( name ) == 0 && parent.HasChild( current.Key ) ) {
+				
+				Debug.Log( "current: " + current.Value.guid + ", " + current.Value.name + ", " + current.Value.path + " - " + parent.HasChild( current.Key ) );
+				if( string.IsNullOrEmpty( current.Value.name ) ) { 
+					if( current.Value.path.CompareTo( name ) == 0 && parent.HasChild( current.Key ) ) {
+						return current.Value;
+					}
+				}
+				else if( current.Value.name.CompareTo( name ) == 0 && parent.HasChild( current.Key ) ) {
 					return current.Value;
 				}
 			}
 			
 			PBXGroup result = new PBXGroup( name, path );
-			groups.AddObject( result );
+			groups.Add( result );
 			parent.AddChild( result );
 			
 			modified = true;
@@ -793,12 +829,66 @@ namespace UnityEditor.XCodeEditor
 //		
 //		#endregion
 		#region Savings
-		/**
-		* Saves a project after editing.
-		*/
+			
+		public void Consolidate()
+		{
+			PBXDictionary consolidated = new PBXDictionary();
+			consolidated.Append<PBXBuildFile>( this.buildFiles );
+			consolidated.Append<PBXGroup>( this.groups );
+			consolidated.Append<PBXFileReference>( this.fileReferences );
+//			consolidated.Append<PBXProject>( this.project );
+			consolidated.Append<PBXNativeTarget>( this.nativeTargets );
+			consolidated.Append<PBXFrameworksBuildPhase>( this.frameworkBuildPhases );
+			consolidated.Append<PBXResourcesBuildPhase>( this.resourcesBuildPhases );
+			consolidated.Append<PBXShellScriptBuildPhase>( this.shellScriptBuildPhases );
+			consolidated.Append<PBXSourcesBuildPhase>( this.sourcesBuildPhases );
+			consolidated.Append<PBXCopyFilesBuildPhase>( this.copyBuildPhases );
+			consolidated.Append<XCBuildConfiguration>( this.buildConfigurations );
+			consolidated.Append<XCConfigurationList>( this.configurationLists );
+			consolidated.Add( project.guid, project.data );
+			_objects = consolidated;
+			consolidated = null;
+		}
+		
+		
+		public void Backup()
+		{
+			string backupPath = Path.Combine( this.filePath, "project.backup.pbxproj" );
+			
+			// Delete previous backup file
+			if( File.Exists( backupPath ) )
+				File.Delete( backupPath );
+			
+			// Backup original pbxproj file first
+			File.Copy( System.IO.Path.Combine( this.filePath, "project.pbxproj" ), backupPath );
+		}
+		
+		/// <summary>
+		/// Saves a project after editing.
+		/// </summary>
 		public void Save()
 		{
+			PBXDictionary result = new PBXDictionary();
+			result.Add( "archiveVersion", 1 );
+			result.Add( "classes", new PBXDictionary() );
+			result.Add( "objectVersion", 45 );
 			
+			Consolidate();
+			result.Add( "objects", _objects );
+			
+			result.Add( "rootObject", _rootObjectKey );
+			
+			Backup();
+			
+			// Parse result object directly into file
+			PBXParser parser = new PBXParser();
+			StreamWriter saveFile = File.CreateText( System.IO.Path.Combine( this.filePath, "project.pbxproj" ) );
+			saveFile.Write( parser.Encode( result, false ) );
+			saveFile.Close();
+//			PBXParser parser = new PBXParser();
+//			Debug.Log( parser.Encode( result, false ) );
+			Xcode4Controller.Connect();
+			Xcode4Controller.OpenProject(filePath);
 		}
 		
 		/**

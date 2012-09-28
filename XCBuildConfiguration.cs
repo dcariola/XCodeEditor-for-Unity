@@ -18,7 +18,7 @@ namespace UnityEditor.XCodeEditor
 		public PBXDictionary buildSettings {
 			get {
 				if( ContainsKey( BUILDSETTINGS_KEY ) )
-					return (PBXDictionary)this[BUILDSETTINGS_KEY];
+					return (PBXDictionary)_data[BUILDSETTINGS_KEY];
 				
 				Debug.Log( "strano" );
 				return null;
@@ -44,16 +44,16 @@ namespace UnityEditor.XCodeEditor
 				if( recursive && !path.EndsWith( "/**" ) )
 					currentPath += "**";
 				
-				if( !((PBXDictionary)this[BUILDSETTINGS_KEY]).ContainsKey( key ) ) {
-					((PBXDictionary)this[BUILDSETTINGS_KEY]).Add( key, new PBXList() );
+				if( !((PBXDictionary)_data[BUILDSETTINGS_KEY]).ContainsKey( key ) ) {
+					((PBXDictionary)_data[BUILDSETTINGS_KEY]).Add( key, new PBXList() );
 				}
-				else if( ((PBXDictionary)this[BUILDSETTINGS_KEY])[key] is string ) {
+				else if( ((PBXDictionary)_data[BUILDSETTINGS_KEY])[key] is string ) {
 					PBXList list = new PBXList();
-					list.Add( ((PBXDictionary)this[BUILDSETTINGS_KEY])[key] );
-					((PBXDictionary)this[BUILDSETTINGS_KEY])[key] = list;
+					list.Add( ((PBXDictionary)_data[BUILDSETTINGS_KEY])[key] );
+					((PBXDictionary)_data[BUILDSETTINGS_KEY])[key] = list;
 				}
 				
-				if( ((PBXList)((PBXDictionary)this[BUILDSETTINGS_KEY])[key]).Add( "\"" + currentPath + "\"" ) >= 0 ) {
+				if( ((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[key]).Add( "\"" + currentPath + "\"" ) >= 0 ) {
 					modified = true;
 				}
 			}
@@ -90,16 +90,16 @@ namespace UnityEditor.XCodeEditor
 			
 			foreach( string flag in flags ) {
 				
-				if( !((PBXDictionary)this[BUILDSETTINGS_KEY]).ContainsKey( OTHER_C_FLAGS_KEY ) ) {
-					((PBXDictionary)this[BUILDSETTINGS_KEY]).Add( OTHER_C_FLAGS_KEY, new PBXList() );
+				if( !((PBXDictionary)_data[BUILDSETTINGS_KEY]).ContainsKey( OTHER_C_FLAGS_KEY ) ) {
+					((PBXDictionary)_data[BUILDSETTINGS_KEY]).Add( OTHER_C_FLAGS_KEY, new PBXList() );
 				}
-				else if ( ((PBXDictionary)this[BUILDSETTINGS_KEY])[ OTHER_C_FLAGS_KEY ] is string ) {
-					string tempString = (string)((PBXDictionary)this[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY];
-					((PBXDictionary)this[BUILDSETTINGS_KEY])[ OTHER_C_FLAGS_KEY ] = new PBXList();
-					((PBXList)((PBXDictionary)this[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( tempString );
+				else if ( ((PBXDictionary)_data[BUILDSETTINGS_KEY])[ OTHER_C_FLAGS_KEY ] is string ) {
+					string tempString = (string)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY];
+					((PBXDictionary)_data[BUILDSETTINGS_KEY])[ OTHER_C_FLAGS_KEY ] = new PBXList();
+					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( tempString );
 				}
 				
-				if( ((PBXList)((PBXDictionary)this[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( flag ) >= 0 ) {
+				if( ((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( flag ) >= 0 ) {
 					modified = true;
 				}
 			}

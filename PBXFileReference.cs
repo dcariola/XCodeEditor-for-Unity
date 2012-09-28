@@ -71,12 +71,12 @@ namespace UnityEditor.XCodeEditor
 			{ ".dylib", "PBXFrameworksBuildPhase" }
     	};
 		
-		public PBXFileReference() : base()
+		public PBXFileReference( string guid, PBXDictionary dictionary ) : base( guid, dictionary )
 		{
 			
 		}
 		
-		public PBXFileReference( string filePath, TreeEnum tree = TreeEnum.SOURCE_ROOT ) : this()
+		public PBXFileReference( string filePath, TreeEnum tree = TreeEnum.SOURCE_ROOT ) : base()
 		{
 			this.Add( PATH_KEY, filePath );
 			this.Add( NAME_KEY, System.IO.Path.GetFileName( filePath ) );
@@ -88,7 +88,12 @@ namespace UnityEditor.XCodeEditor
 		{
 			this.Remove( EXPLICIT_FILE_TYPE_KEY );
 			this.Remove( LASTKNOWN_FILE_TYPE_KEY );
-			string extension = System.IO.Path.GetExtension( (string)this[ PATH_KEY ] );
+			string extension = System.IO.Path.GetExtension( (string)_data[ PATH_KEY ] );
+			if( !PBXFileReference.typeNames.ContainsKey( extension ) ){
+				Debug.LogWarning( "Unknown file extension: " + extension + "\nPlease add extension and Xcode type to PBXFileReference.types" );
+				return;
+			}
+			
 			this.Add( LASTKNOWN_FILE_TYPE_KEY, PBXFileReference.typeNames[ extension ] );
 			this.buildPhase = PBXFileReference.typePhases[ extension ];
 		}

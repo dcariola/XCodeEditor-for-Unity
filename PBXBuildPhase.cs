@@ -8,25 +8,28 @@ namespace UnityEditor.XCodeEditor
 	{
 		protected const string FILES_KEY = "files";
 		
-		public PBXBuildPhase()
+		public PBXBuildPhase() :base()
 		{
-			Debug.Log( "base" );
+//			Debug.Log( "base" );
 		}
 		
-		public PBXBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		public PBXBuildPhase( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor " + GetType().Name );
+//			Debug.Log( "constructor " + GetType().Name );
 		}
 		
 		public bool AddBuildFile( PBXBuildFile file )
 		{
-			if( ((string)file[ ISA_KEY ]).CompareTo( "PBXBuildFile" ) != 0 )
-				return false;
+//			if( ((string)file[ ISA_KEY ]).CompareTo( "PBXBuildFile" ) != 0 )
+//				return false;
 			
-			if( !ContainsKey( FILES_KEY ) )
+			if( !ContainsKey( FILES_KEY ) ){
+				Debug.Log( "key not present" );
 				this.Add( FILES_KEY, new PBXList() );
-			
-			((PBXList)this[ FILES_KEY ]).Add( file.guid );
+			}
+			Debug.Log( "key: " + _data[ FILES_KEY ] );
+			Debug.Log( "Adding: " + file.guid );
+			((PBXList)_data[ FILES_KEY ]).Add( file.guid );
 			return true;
 		}
 		
@@ -37,7 +40,7 @@ namespace UnityEditor.XCodeEditor
 				return;
 			}
 			
-			((PBXList)this[ FILES_KEY ]).Remove( id );
+			((PBXList)_data[ FILES_KEY ]).Remove( id );
 		}
 		
 		public bool HasBuildFile( string id )
@@ -50,7 +53,7 @@ namespace UnityEditor.XCodeEditor
 			if( !IsGuid( id ) )
 				return false;
 			
-			return ((PBXList)this[ FILES_KEY ]).Contains( id );
+			return ((PBXList)_data[ FILES_KEY ]).Contains( id );
 		}
 		
 //	class PBXBuildPhase(PBXObject):
@@ -85,41 +88,41 @@ namespace UnityEditor.XCodeEditor
 	
 	public class PBXFrameworksBuildPhase : PBXBuildPhase
 	{
-		public PBXFrameworksBuildPhase( string guid, PBXDictionary dictionary ) //: base ( guid, dictionary )
+		public PBXFrameworksBuildPhase( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor child" + GetType().Name );
+//			Debug.Log( "constructor child" + GetType().Name );
 		}
 	}
 
 	public class PBXResourcesBuildPhase : PBXBuildPhase
 	{
-		public PBXResourcesBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		public PBXResourcesBuildPhase( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor child" + GetType().Name );
+//			Debug.Log( "constructor child" + GetType().Name );
 		}
 	}
 
 	public class PBXShellScriptBuildPhase : PBXBuildPhase
 	{
-		public PBXShellScriptBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		public PBXShellScriptBuildPhase( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor child" + GetType().Name );
+//			Debug.Log( "constructor child" + GetType().Name );
 		}
 	}
 
 	public class PBXSourcesBuildPhase : PBXBuildPhase
 	{
-		public PBXSourcesBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		public PBXSourcesBuildPhase( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor child" + GetType().Name );
+//			Debug.Log( "constructor child" + GetType().Name );
 		}
 	}
 
 	public class PBXCopyFilesBuildPhase : PBXBuildPhase
 	{
-		public PBXCopyFilesBuildPhase( string guid, PBXDictionary dictionary )// : base ( guid, dictionary )
+		public PBXCopyFilesBuildPhase( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-			Debug.Log( "constructor child" + GetType().Name );
+//			Debug.Log( "constructor child" + GetType().Name );
 		}
 	}
 }

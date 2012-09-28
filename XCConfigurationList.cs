@@ -9,5 +9,8 @@ namespace UnityEditor.XCodeEditor
 //		XCBuildConfigurationList buildConfigurations;
 //		bool defaultConfigurationIsVisible = false;
 //		string defaultConfigurationName;
+		
+		public XCConfigurationList( string guid, PBXDictionary dictionary ) : base( guid, dictionary ) {	
+		}
 	}
 }
