@@ -15,7 +15,9 @@ namespace UnityEditor.XCodeEditor
 			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
 //			Debug.Log( "XcodePath: " + projectPath );
 			
-			XCProject currentProject = new XCProject( projectPath );
+//			XCProject currentProject = new XCProject( projectPath );
+			XCProject.ApplyMod( projectPath, "/Users/Elyn/Projects/UnityPlugins/Unity Sandbox Project/Assets/Modules/GameCenter/Editor/iOS/GameCenter.projmods" );
+			
 			//Debug.Log(
 //			PBXDictionary test = new PBXDictionary();
 //			bool result = false;
@@ -35,16 +37,16 @@ namespace UnityEditor.XCodeEditor
 //			Debug.Log( testList.Count );
 //			Debug.Log( currentProject.rootGroup.guid + " " + currentProject.rootGroup.name + " " + currentProject.rootGroup.path);
 //			string path1 = "Data/mainData";
-			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/";
-//			currentProject.AddFile( path2 );
-			Debug.Log( "Objects: " + currentProject._objects.Count );
-			Debug.Log( "Files: " + currentProject.buildFiles.Count );
-			Debug.Log( "Groups: " + currentProject.groups.Count );
-			string[] excludes = new string[] {"^.*\\.meta$", "^.*\\.mdown^", "^.*\\.pdf$"};
-			currentProject.AddFolder( path2, null, excludes );
-			currentProject.Consolidate();
-			Debug.Log( "Objects: " + currentProject._objects.Count );
-			currentProject.Save();
+
+//			string path2 = "/Users/Elyn/Projects/UnityPlugins/Modules/GameCenter/Editor/iOS/";
+//			Debug.Log( "Objects: " + currentProject._objects.Count );
+//			Debug.Log( "Files: " + currentProject.buildFiles.Count );
+//			Debug.Log( "Groups: " + currentProject.groups.Count );
+//			string[] excludes = new string[] {"^.*\\.meta$", "^.*\\.mdown^", "^.*\\.pdf$"};
+//			currentProject.AddFolder( path2, null, excludes );
+//			currentProject.Consolidate();
+//			Debug.Log( "Objects: " + currentProject._objects.Count );
+//			currentProject.Save();
 			
 			//ALTRO
 //			currentProject.AddOtherCFlags( "TEST_FLAG" );
@@ -63,6 +65,14 @@ namespace UnityEditor.XCodeEditor
 		[MenuItem ("Build Tools/XCode Editor/DebugTest2 %y")]
 		static void DebugTest2()
 		{
+			string path1 = "/Users/Elyn/Projects/UnityPlugins/Unity Sandbox Project/Assets/Modules/GameCenter/Editor/iOS/GameCenterManager.m";
+			string path2 = "/Users/Elyn/Projects/UnityPlugins/Unity Sandbox Project/XCode/.";
+			
+			System.Uri fileURI = new System.Uri( path1 );
+			System.Uri rootURI = new System.Uri( path2 );
+			Debug.Log( fileURI.MakeRelativeUri( rootURI ).ToString() );
+			Debug.Log( rootURI.MakeRelativeUri( fileURI ).ToString() );
+			
 //			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
 			
 //			string[] files = System.IO.Directory.GetFiles( projectPath, "Info.plist" );

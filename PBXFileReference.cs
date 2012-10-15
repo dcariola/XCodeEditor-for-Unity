@@ -84,6 +84,15 @@ namespace UnityEditor.XCodeEditor
 			this.GuessFileType();
 		}
 		
+		public string name {
+			get {
+				if( !ContainsKey( NAME_KEY ) ) {
+					return null;
+				}
+				return (string)_data[NAME_KEY];
+			}
+		}
+		
 		private void GuessFileType()
 		{
 			this.Remove( EXPLICIT_FILE_TYPE_KEY );

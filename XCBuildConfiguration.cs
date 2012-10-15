@@ -19,8 +19,7 @@ namespace UnityEditor.XCodeEditor
 			get {
 				if( ContainsKey( BUILDSETTINGS_KEY ) )
 					return (PBXDictionary)_data[BUILDSETTINGS_KEY];
-				
-				Debug.Log( "strano" );
+			
 				return null;
 			}
 		}
@@ -44,6 +43,7 @@ namespace UnityEditor.XCodeEditor
 				if( recursive && !path.EndsWith( "/**" ) )
 					currentPath += "**";
 				
+//				Debug.Log( "adding: " + currentPath );
 				if( !((PBXDictionary)_data[BUILDSETTINGS_KEY]).ContainsKey( key ) ) {
 					((PBXDictionary)_data[BUILDSETTINGS_KEY]).Add( key, new PBXList() );
 				}
@@ -53,7 +53,10 @@ namespace UnityEditor.XCodeEditor
 					((PBXDictionary)_data[BUILDSETTINGS_KEY])[key] = list;
 				}
 				
-				if( ((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[key]).Add( "\"" + currentPath + "\"" ) >= 0 ) {
+				currentPath = "\\\"" + currentPath + "\\\"";
+				
+				if( !((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[key]).Contains( currentPath ) ) {
+					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[key]).Add( currentPath );
 					modified = true;
 				}
 			}
@@ -99,7 +102,8 @@ namespace UnityEditor.XCodeEditor
 					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( tempString );
 				}
 				
-				if( ((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( flag ) >= 0 ) {
+				if( !((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Contains( flag ) ) {
+					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( flag );
 					modified = true;
 				}
 			}

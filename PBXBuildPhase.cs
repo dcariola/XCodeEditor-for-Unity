@@ -22,14 +22,23 @@ namespace UnityEditor.XCodeEditor
 		{
 //			if( ((string)file[ ISA_KEY ]).CompareTo( "PBXBuildFile" ) != 0 )
 //				return false;
+//			Debug.Log( "--> buildphase " + (string)_data[ ISA_KEY ] );
+			
 			
 			if( !ContainsKey( FILES_KEY ) ){
-				Debug.Log( "key not present" );
+//				Debug.Log( "key not present" );
 				this.Add( FILES_KEY, new PBXList() );
 			}
-			Debug.Log( "key: " + _data[ FILES_KEY ] );
-			Debug.Log( "Adding: " + file.guid );
+//			Debug.Log( "key: " + _data[ FILES_KEY ] );
+//			Debug.Log( "Adding: " + file.guid );
 			((PBXList)_data[ FILES_KEY ]).Add( file.guid );
+//			if( ((PBXList)_data[ FILES_KEY ]).Contains( file.guid ) ) {
+//				Debug.Log( "AGGIUNTO" );
+//			}
+//			else {
+//				Debug.Log( "MANCA" );
+//			}
+			
 			return true;
 		}
 		
