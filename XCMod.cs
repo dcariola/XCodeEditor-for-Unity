@@ -16,6 +16,7 @@ namespace UnityEditor.XCodeEditor
 //		private ArrayList folders;
 //		private ArrayList excludes;
 		private Hashtable _datastore;
+		private ArrayList _libs;
 		
 		public string name { get; private set; }
 		public string path { get; private set; }
@@ -34,7 +35,13 @@ namespace UnityEditor.XCodeEditor
 		
 		public ArrayList libs {
 			get {
-				return (ArrayList)_datastore["libs"];
+				if( _libs == null ) {
+					_libs = new ArrayList( ((ArrayList)_datastore["libs"]).Count );
+					foreach( string fileRef in (ArrayList)_datastore["libs"] ) {
+						_libs.Add( new XCModFile( fileRef ) );
+					}
+				}
+				return _libs;
 			}
 		}
 		
@@ -90,7 +97,7 @@ namespace UnityEditor.XCodeEditor
 //			folders = (ArrayList)_datastore["folders"];
 //			excludes = (ArrayList)_datastore["excludes"];
 		}
-			
+		
 			
 //	"group": "GameCenter",
 //	"patches": [],
@@ -105,5 +112,25 @@ namespace UnityEditor.XCodeEditor
 //	"folders": [],	
 //	"excludes": ["^.*\\.meta$", "^.*\\.mdown^", "^.*\\.pdf$"]
 		
+	}
+	
+	public class XCModFile
+	{
+		public string filePath { get; private set; }
+		public bool isWeak { get; private set; }
+		
+		public XCModFile( string inputString )
+		{
+			isWeak = false;
+			
+			if( inputString.Contains( ":" ) ) {
+				string[] parts = inputString.Split( ':' );
+				filePath = parts[0];
+				isWeak = ( parts[1].CompareTo( "weak" ) == 0 );	
+			}
+			else {
+				filePath = inputString;
+			}
+		}
 	}
 }

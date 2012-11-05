@@ -863,6 +863,22 @@ namespace UnityEditor.XCodeEditor
 		{	
 			PBXGroup modGroup = this.GetGroup( mod.group );
 			
+			Debug.Log( "Adding libraries..." );
+			PBXGroup librariesGroup = this.GetGroup( "Libraries" );
+			foreach( XCModFile libRef in mod.libs ) {
+				string completeLibPath = System.IO.Path.Combine( "usr/lib", libRef.filePath );
+				this.AddFile( completeLibPath, modGroup, "SDKROOT", true, libRef.isWeak );
+			}
+			
+			Debug.Log( "Adding frameworks..." );
+			PBXGroup frameworkGroup = this.GetGroup( "Frameworks" );
+			foreach( string framework in mod.frameworks ) {
+				string[] filename = framework.Split( ':' );
+				bool isWeak = ( filename.Length > 1 ) ? true : false;
+				string completePath = System.IO.Path.Combine( "System/Library/Frameworks", filename[0] );
+				this.AddFile( completePath, frameworkGroup, "SDKROOT", true, isWeak );
+			}
+			
 			Debug.Log( "Adding files..." );
 			foreach( string filePath in mod.files ) {
 				string absoluteFilePath = System.IO.Path.Combine( mod.path, filePath );
@@ -873,15 +889,6 @@ namespace UnityEditor.XCodeEditor
 			foreach( string folderPath in mod.folders ) {
 				string absoluteFolderPath = System.IO.Path.Combine( mod.path, folderPath );
 				this.AddFolder( absoluteFolderPath, modGroup, (string[])mod.excludes.ToArray( typeof(string) ) );
-			}
-			
-			Debug.Log( "Adding frameworks..." );
-			PBXGroup frameworkGroup = this.GetGroup( "Frameworks" );
-			foreach( string framework in mod.frameworks ) {
-				string[] filename = framework.Split( ':' );
-				bool isWeak = ( filename.Length > 1 ) ? true : false;
-				string completePath = System.IO.Path.Combine( "System/Library/Frameworks", filename[0] );
-				this.AddFile( completePath, frameworkGroup, "SDKROOT", true, isWeak );
 			}
 			
 			Debug.Log( "Adding headerpaths..." );
