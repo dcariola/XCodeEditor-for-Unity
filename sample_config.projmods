@@ -1,0 +1,10 @@
+{
+    "group": "Services",
+    "libs": ["libsqlite3.dylib"],
+    "frameworks": ["MessageUI.framework","StoreKit.framework","iAd.framework","CoreData.framework","SystemConfiguration.framework","Social.framework:","Security.framework:","Accounts.framework:","AdSupport.framework:"],
+    "headerpaths": [],                    
+    "files": ["/Users/beannt/Documents/FacebookSDK/FacebookSDK.framework", "/Users/beannt/Documents/FacebookSDK/FacebookSDK.framework/Versions/A/Resources/FacebookSDKResources.bundle"],
+    "folders": [],
+    "linkers": ["ObjC"],
+    "excludes": ["^.*.DS_Store$","^.*.meta$", "^.*.mdown^", "^.*.pdf$"]
+}
