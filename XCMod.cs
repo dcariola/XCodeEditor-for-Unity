@@ -56,6 +56,12 @@ namespace UnityEditor.XCodeEditor
 				return (ArrayList)_datastore["headerpaths"];
 			}
 		}
+
+		public ArrayList linkers {
+			get {
+				return (ArrayList)_datastore["linkers"];
+			}
+		}
 		
 		public ArrayList files {
 			get {

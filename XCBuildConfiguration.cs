@@ -8,8 +8,10 @@ namespace UnityEditor.XCodeEditor
 		protected const string BUILDSETTINGS_KEY = "buildSettings";
 		protected const string HEADER_SEARCH_PATHS_KEY = "HEADER_SEARCH_PATHS";
 		protected const string LIBRARY_SEARCH_PATHS_KEY = "LIBRARY_SEARCH_PATHS";
+		protected const string FRAMEWORK_SEARCH_PATHS_KEY = "FRAMEWORK_SEARCH_PATHS";
 		protected const string OTHER_C_FLAGS_KEY = "OTHER_CFLAGS";
-		
+		protected const string OTHER_LD_FLAGS_KEY = "OTHER_LDFLAGS";
+
 		public XCBuildConfiguration( string guid, PBXDictionary dictionary ) : base( guid, dictionary )
 		{
 			
@@ -41,7 +43,7 @@ namespace UnityEditor.XCodeEditor
 			foreach( string path in paths ) {
 				string currentPath = path;
 				if( recursive && !path.EndsWith( "/**" ) )
-					currentPath += "**";
+					currentPath += "/**";
 				
 //				Debug.Log( "adding: " + currentPath );
 				if( !((PBXDictionary)_data[BUILDSETTINGS_KEY]).ContainsKey( key ) ) {
@@ -72,6 +74,11 @@ namespace UnityEditor.XCodeEditor
 		public bool AddLibrarySearchPaths( PBXList paths, bool recursive = true )
 		{
 			return this.AddSearchPaths( paths, LIBRARY_SEARCH_PATHS_KEY, recursive );
+		}
+
+		public bool AddFrameworkSearchPaths(PBXList paths, bool recursive = true)
+		{
+			return this.AddSearchPaths(paths, FRAMEWORK_SEARCH_PATHS_KEY, recursive);
 		}
 		
 		public bool AddOtherCFlags( string flag )
@@ -104,6 +111,43 @@ namespace UnityEditor.XCodeEditor
 				
 				if( !((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Contains( flag ) ) {
 					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_C_FLAGS_KEY]).Add( flag );
+					modified = true;
+				}
+			}
+			
+			return modified;
+		}
+
+		public bool AddOtherLDFlags( string flag )
+		{
+			Debug.Log( "INIZIO A" );
+			PBXList flags = new PBXList();
+			flags.Add( flag );
+			return AddOtherLDFlags( flags );
+		}
+
+		public bool AddOtherLDFlags( PBXList flags )
+		{
+			Debug.Log( "INIZIO B" );
+			
+			bool modified = false;
+			
+			if( !ContainsKey( BUILDSETTINGS_KEY ) )
+				this.Add( BUILDSETTINGS_KEY, new PBXDictionary() );
+			
+			foreach( string flag in flags ) {
+				
+				if( !((PBXDictionary)_data[BUILDSETTINGS_KEY]).ContainsKey( OTHER_LD_FLAGS_KEY ) ) {
+					((PBXDictionary)_data[BUILDSETTINGS_KEY]).Add( OTHER_LD_FLAGS_KEY, new PBXList() );
+				}
+				else if ( ((PBXDictionary)_data[BUILDSETTINGS_KEY])[ OTHER_LD_FLAGS_KEY ] is string ) {
+					string tempString = (string)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_LD_FLAGS_KEY];
+					((PBXDictionary)_data[BUILDSETTINGS_KEY])[ OTHER_LD_FLAGS_KEY ] = new PBXList();
+					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_LD_FLAGS_KEY]).Add( tempString );
+				}
+				
+				if( !((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_LD_FLAGS_KEY]).Contains( flag ) ) {
+					((PBXList)((PBXDictionary)_data[BUILDSETTINGS_KEY])[OTHER_LD_FLAGS_KEY]).Add( flag );
 					modified = true;
 				}
 			}

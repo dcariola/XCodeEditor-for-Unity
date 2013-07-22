@@ -9,14 +9,14 @@ namespace UnityEditor.XCodeEditor
 	public class XCodeEditorMenu
 	{
 
-		[MenuItem ("Build Tools/XCode Editor/DebugTest %t")]
+		//[MenuItem ("Build Tools/XCode Editor/DebugTest %t")]
 		static void DebugTest()
 		{	
 			string projectPath = Path.Combine( Directory.GetParent( Application.dataPath ).ToString(), "XCode" );
 //			Debug.Log( "XcodePath: " + projectPath );
 			
 //			XCProject currentProject = new XCProject( projectPath );
-			XCProject.ApplyMod( projectPath, "/Users/Elyn/Projects/UnityPlugins/Unity Sandbox Project/Assets/Modules/GameCenter/Editor/iOS/GameCenter.projmods" );
+			//XCProject.ApplyMod( projectPath, "/Users/Elyn/Projects/UnityPlugins/Unity Sandbox Project/Assets/Modules/GameCenter/Editor/iOS/GameCenter.projmods" );
 			
 			//Debug.Log(
 //			PBXDictionary test = new PBXDictionary();
@@ -62,7 +62,7 @@ namespace UnityEditor.XCodeEditor
 		}
 		
 		
-		[MenuItem ("Build Tools/XCode Editor/DebugTest2 %y")]
+		//[MenuItem ("Build Tools/XCode Editor/DebugTest2 %y")]
 		static void DebugTest2()
 		{
 			string path1 = "/Users/Elyn/Projects/UnityPlugins/Unity Sandbox Project/Assets/Modules/GameCenter/Editor/iOS/GameCenterManager.m";

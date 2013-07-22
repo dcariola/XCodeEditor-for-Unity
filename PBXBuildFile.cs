@@ -17,7 +17,7 @@ namespace UnityEditor.XCodeEditor
 			
 			this.Add( FILE_REF_KEY, fileRef.guid );
 			SetWeakLink( weak );
-			
+
 //    def Create(cls, file_ref, weak=False):
 //        if isinstance(file_ref, PBXFileReference):
 //            file_ref = file_ref.id
@@ -49,6 +49,7 @@ namespace UnityEditor.XCodeEditor
 					
 					settings = new PBXDictionary();
 					settings.Add( ATTRIBUTES_KEY, attributes );
+					_data[ SETTINGS_KEY ] = settings;
 				}
 				return true;
 			}
