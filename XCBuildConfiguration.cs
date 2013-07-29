@@ -11,6 +11,8 @@ namespace UnityEditor.XCodeEditor
 		protected const string FRAMEWORK_SEARCH_PATHS_KEY = "FRAMEWORK_SEARCH_PATHS";
 		protected const string OTHER_C_FLAGS_KEY = "OTHER_CFLAGS";
 		protected const string OTHER_LD_FLAGS_KEY = "OTHER_LDFLAGS";
+		protected const string GCC_ENABLE_CPP_EXCEPTIONS_KEY = "GCC_ENABLE_CPP_EXCEPTIONS";
+		protected const string GCC_ENABLE_OBJC_EXCEPTIONS_KEY = "GCC_ENABLE_OBJC_EXCEPTIONS";
 
 		public XCBuildConfiguration( string guid, PBXDictionary dictionary ) : base( guid, dictionary )
 		{
@@ -83,7 +85,7 @@ namespace UnityEditor.XCodeEditor
 		
 		public bool AddOtherCFlags( string flag )
 		{
-			Debug.Log( "INIZIO 1" );
+			//Debug.Log( "INIZIO 1" );
 			PBXList flags = new PBXList();
 			flags.Add( flag );
 			return AddOtherCFlags( flags );
@@ -91,7 +93,7 @@ namespace UnityEditor.XCodeEditor
 		
 		public bool AddOtherCFlags( PBXList flags )
 		{
-			Debug.Log( "INIZIO 2" );
+			//Debug.Log( "INIZIO 2" );
 			
 			bool modified = false;
 			
@@ -120,7 +122,7 @@ namespace UnityEditor.XCodeEditor
 
 		public bool AddOtherLDFlags( string flag )
 		{
-			Debug.Log( "INIZIO A" );
+			//Debug.Log( "INIZIO A" );
 			PBXList flags = new PBXList();
 			flags.Add( flag );
 			return AddOtherLDFlags( flags );
@@ -128,7 +130,7 @@ namespace UnityEditor.XCodeEditor
 
 		public bool AddOtherLDFlags( PBXList flags )
 		{
-			Debug.Log( "INIZIO B" );
+			//Debug.Log( "INIZIO B" );
 			
 			bool modified = false;
 			
@@ -153,6 +155,24 @@ namespace UnityEditor.XCodeEditor
 			}
 			
 			return modified;
+		}
+
+		public bool GccEnableCppExceptions (string value)
+		{
+			if (!ContainsKey (BUILDSETTINGS_KEY))
+				this.Add (BUILDSETTINGS_KEY, new PBXDictionary ());
+
+			((PBXDictionary)_data [BUILDSETTINGS_KEY])[GCC_ENABLE_CPP_EXCEPTIONS_KEY] = value;
+			return true;
+		}
+
+		public bool GccEnableObjCExceptions (string value)
+		{
+			if (!ContainsKey (BUILDSETTINGS_KEY))
+				this.Add (BUILDSETTINGS_KEY, new PBXDictionary ());
+
+			((PBXDictionary)_data [BUILDSETTINGS_KEY])[GCC_ENABLE_OBJC_EXCEPTIONS_KEY] = value;
+			return true;
 		}
 		
 //	class XCBuildConfiguration(PBXType):

@@ -258,7 +258,25 @@ namespace UnityEditor.XCodeEditor
 			modified = true;
 			return modified;	
 		}
-		
+
+		public bool GccEnableCppExceptions (string value)
+		{
+			foreach( KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations ) {
+				buildConfig.Value.GccEnableCppExceptions( value );
+			}
+			modified = true;
+			return modified;	
+		}
+
+		public bool GccEnableObjCExceptions (string value)
+		{
+			foreach( KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations ) {
+				buildConfig.Value.GccEnableObjCExceptions( value );
+			}
+			modified = true;
+			return modified;
+		}
+
 		public bool AddHeaderSearchPaths( string path )
 		{
 			return AddHeaderSearchPaths( new PBXList( path ) );
@@ -354,12 +372,12 @@ namespace UnityEditor.XCodeEditor
 //				Debug.Log( "Is rooted: " + absPath );
 			}
 			else if( tree.CompareTo( "SDKROOT" ) != 0) {
-				absPath = Path.Combine( Application.dataPath, filePath );
+				absPath = Path.Combine( Application.dataPath.Replace("Assets", ""), filePath );
 //				Debug.Log( "RElative: " + absPath );
 			}
 			
 			if( !( File.Exists( absPath ) || Directory.Exists( absPath ) ) && tree.CompareTo( "SDKROOT" ) != 0 ) {
-				Debug.Log( "Missing file: " + filePath );
+				Debug.Log( "Missing file: " + absPath + " > " + filePath );
 				return results;
 			}
 			else if( tree.CompareTo( "SOURCE_ROOT" ) == 0 || tree.CompareTo( "GROUP" ) == 0 ) {
@@ -402,7 +420,7 @@ namespace UnityEditor.XCodeEditor
 						}
 
 						if ( !string.IsNullOrEmpty( absPath ) && File.Exists(absPath) && tree.CompareTo( "SOURCE_ROOT" ) == 0 ) {
-							Debug.LogError(absPath);
+							//Debug.LogError(absPath);
 							string libraryPath = Path.Combine( "$(SRCROOT)", Path.GetDirectoryName( filePath ) );
 							this.AddLibrarySearchPaths( new PBXList(libraryPath) );
 						}
@@ -509,9 +527,10 @@ namespace UnityEditor.XCodeEditor
 			if( !Directory.Exists( folderPath ) )
 				return false;
 			DirectoryInfo sourceDirectoryInfo = new DirectoryInfo( folderPath );
-			
+
 			if( exclude == null )
 				exclude = new string[] {};
+			string regexExclude = string.Format( @"{0}", string.Join( "|", exclude ) );
 			
 			PBXDictionary results = new PBXDictionary();
 			
@@ -524,6 +543,10 @@ namespace UnityEditor.XCodeEditor
 			
 			foreach( string directory in Directory.GetDirectories( folderPath ) )
 			{
+				if( Regex.IsMatch( directory, regexExclude ) ) {
+					continue;
+				}
+
 //				special_folders = ['.bundle', '.framework', '.xcodeproj']	
 				Debug.Log( "DIR: " + directory );
 				if( directory.EndsWith( ".bundle" ) ) {
@@ -539,18 +562,15 @@ namespace UnityEditor.XCodeEditor
 					AddFolder( directory, newGroup, exclude, recursive, createBuildFile );
 				}
 			}
-			
 			// Adding files.
-			string regexExclude = string.Format( @"{0}", string.Join( "|", exclude ) );
 			foreach( string file in Directory.GetFiles( folderPath ) ) {
 				if( Regex.IsMatch( file, regexExclude ) ) {
 					continue;
 				}
-//				Debug.Log( "--> " + file + ", " + newGroup );
+				//Debug.Log( "--> " + file + ", " + newGroup );
 				AddFile( file, newGroup, "SOURCE_ROOT", createBuildFile );
 			}
-			
-			
+
 			modified = true;
 			return modified;
 //		def add_folder(self, os_path, parent=None, excludes=None, recursive=True, create_build_files=True):
@@ -947,14 +967,33 @@ namespace UnityEditor.XCodeEditor
 				this.AddHeaderSearchPaths( absoluteHeaderPath );
 			}
 
-			Debug.Log( "Adding other linker flags..." );
-			foreach( string linker in mod.linkers ) {
-				string _linker = linker;
-				if( !_linker.StartsWith("-") )
-					_linker = "-" + _linker;
-				this.AddOtherLDFlags( _linker );
+			Debug.Log( "Configure build settings..." );
+			Hashtable buildSettings = mod.buildSettings;
+			if( buildSettings.ContainsKey("OTHER_LDFLAGS") )
+			{
+				Debug.Log( "    Adding other linker flags..." );
+				ArrayList otherLinkerFlags = (ArrayList) buildSettings["OTHER_LDFLAGS"];
+				foreach( string linker in otherLinkerFlags ) 
+				{
+					string _linker = linker;
+					if( !_linker.StartsWith("-") )
+						_linker = "-" + _linker;
+					this.AddOtherLDFlags( _linker );
+				}
 			}
-			
+
+			if( buildSettings.ContainsKey("GCC_ENABLE_CPP_EXCEPTIONS") )
+			{
+				Debug.Log( "    GCC_ENABLE_CPP_EXCEPTIONS = " + buildSettings["GCC_ENABLE_CPP_EXCEPTIONS"] );
+				this.GccEnableCppExceptions( (string) buildSettings["GCC_ENABLE_CPP_EXCEPTIONS"] );
+			}
+
+			if( buildSettings.ContainsKey("GCC_ENABLE_OBJC_EXCEPTIONS") )
+			{
+				Debug.Log( "    GCC_ENABLE_OBJC_EXCEPTIONS = " + buildSettings["GCC_ENABLE_OBJC_EXCEPTIONS"] );
+				this.GccEnableObjCExceptions( (string) buildSettings["GCC_ENABLE_OBJC_EXCEPTIONS"] );
+			}
+
 			this.Consolidate();
 		}
 		
