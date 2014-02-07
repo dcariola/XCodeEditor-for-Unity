@@ -461,6 +461,7 @@ namespace UnityEditor.KabamXCodeEditor
 		
 		public bool AddFolder( string folderPath, PBXGroup parent = null, string[] exclude = null, bool recursive = true, bool createBuildFile = true )
 		{
+			Debug.Log ("Path: " + folderPath + ", Exists: " + Directory.Exists (folderPath));
 			if( !Directory.Exists( folderPath ) )
 				return false;
 			DirectoryInfo sourceDirectoryInfo = new DirectoryInfo( folderPath );
@@ -888,6 +889,7 @@ namespace UnityEditor.KabamXCodeEditor
 			Debug.Log( "Adding folders..." );
 			foreach( string folderPath in mod.folders ) {
 				string absoluteFolderPath = System.IO.Path.Combine( mod.path, folderPath );
+				Debug.Log("Path: " + mod.path + ", Absolute Path: " + absoluteFolderPath);
 				this.AddFolder( absoluteFolderPath, modGroup, mod.excludes.ToArray() );
 			}
 			

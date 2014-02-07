@@ -203,7 +203,7 @@ namespace UnityEditor.KabamXCodeEditor
 
 					case DICTIONARY_ASSIGN_TOKEN:
 						valueObject = ParseValue();
-						dictionary.Add( keyString, valueObject );
+						dictionary[keyString] = valueObject;
 						break;
 
 					default:
