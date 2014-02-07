@@ -888,7 +888,7 @@ namespace UnityEditor.KabamXCodeEditor
 			Debug.Log( "Adding folders..." );
 			foreach( string folderPath in mod.folders ) {
 				string absoluteFolderPath = System.IO.Path.Combine( mod.path, folderPath );
-				this.AddFolder( absoluteFolderPath, modGroup, (string[])mod.excludes.ToArray( typeof(string) ) );
+				this.AddFolder( absoluteFolderPath, modGroup, mod.excludes.ToArray() );
 			}
 			
 			Debug.Log( "Adding headerpaths..." );

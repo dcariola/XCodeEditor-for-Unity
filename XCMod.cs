@@ -9,36 +9,56 @@ namespace UnityEditor.KabamXCodeEditor
 	public class XCMod 
 	{
 //		private string group;
-//		private ArrayList patches;
-//		private ArrayList libs;
-//		private ArrayList frameworks;
-//		private ArrayList headerpaths;
-//		private ArrayList files;
-//		private ArrayList folders;
-//		private ArrayList excludes;
-		private Hashtable _datastore;
-		private ArrayList _libs;
+		private List<string> _patches;
+		private List<XCModFile> _libs;
+		private List<string> _frameworks;
+		private List<string> _headerpaths;
+		private List<string> _files;
+		private List<string> _folders;
+		private List<string> _excludes;
+		private Dictionary<string,object> _datastore;
 		
 		public string name { get; private set; }
 		public string path { get; private set; }
-		
+
+		private List<string> convertList(object input) {
+			if (input != null && input.GetType ().Equals (typeof(List))) {
+				return convertList ((List<object>)input);
+			} else {
+				return new List<string> ();
+			}
+		}
+
+		private List<string> convertList(List<object> input) {
+			List<string> output = new List<string> ();
+			if (input != null) {
+				foreach (object obj in input) {
+					output.Add (obj.ToString ());
+				}
+			}
+			return output;
+		}
+
 		public string group {
 			get {
 				return (string)_datastore["group"];
 			}
 		}
 		
-		public ArrayList patches {
+		public List<string> patches {
 			get {
-				return (ArrayList)_datastore["patches"];
+				if( _patches == null) {
+					_patches = convertList (_datastore["patches"]);
+				}
+				return _patches;
 			}
 		}
 		
-		public ArrayList libs {
+		public List<XCModFile> libs {
 			get {
-				if( _libs == null ) {
-					_libs = new ArrayList( ((ArrayList)_datastore["libs"]).Count );
-					foreach( string fileRef in (ArrayList)_datastore["libs"] ) {
+				if( _libs == null && _datastore["libs"] != null) {
+					_libs = new List<XCModFile>();
+					foreach( string fileRef in convertList (_datastore["libs"]) ) {
 						_libs.Add( new XCModFile( fileRef ) );
 					}
 				}
@@ -46,33 +66,48 @@ namespace UnityEditor.KabamXCodeEditor
 			}
 		}
 		
-		public ArrayList frameworks {
+		public List<string> frameworks {
 			get {
-				return (ArrayList)_datastore["frameworks"];
+				if( _frameworks == null) {
+					_frameworks = convertList (_datastore["frameworks"]);
+				}
+				return _frameworks;
 			}
 		}
 		
-		public ArrayList headerpaths {
+		public List<string> headerpaths {
 			get {
-				return (ArrayList)_datastore["headerpaths"];
+				if( _headerpaths == null) {
+					_headerpaths = convertList (_datastore["headerpaths"]);
+				}
+				return _headerpaths;
 			}
 		}
 		
-		public ArrayList files {
+		public List<string> files {
 			get {
-				return (ArrayList)_datastore["files"];
+				if( _files == null) {
+					_files = convertList (_datastore["files"]);
+				}
+				return _files;
 			}
 		}
 		
-		public ArrayList folders {
+		public List<string> folders {
 			get {
-				return (ArrayList)_datastore["folders"];
+				if( _folders == null) {
+					_folders = convertList (_datastore["folders"]);
+				}
+				return _folders;
 			}
 		}
 		
-		public ArrayList excludes {
+		public List<string> excludes {
 			get {
-				return (ArrayList)_datastore["excludes"];
+				if( _excludes == null) {
+					_excludes = convertList (_datastore["excludes"]);
+				}
+				return _excludes;
 			}
 		}
 		
@@ -87,17 +122,7 @@ namespace UnityEditor.KabamXCodeEditor
 			path = System.IO.Path.GetDirectoryName( filename );
 			
 			string contents = projectFileInfo.OpenText().ReadToEnd();
-			var dict = (Dictionary<string, object>)Json.Deserialize (contents);
-			_datastore = new Hashtable(dict);	
-			
-//			group = (string)_datastore["group"];
-//			patches = (ArrayList)_datastore["patches"];
-//			libs = (ArrayList)_datastore["libs"];
-//			frameworks = (ArrayList)_datastore["frameworks"];
-//			headerpaths = (ArrayList)_datastore["headerpaths"];
-//			files = (ArrayList)_datastore["files"];
-//			folders = (ArrayList)_datastore["folders"];
-//			excludes = (ArrayList)_datastore["excludes"];
+			_datastore = (Dictionary<string, object>)Json.Deserialize (contents);
 		}
 		
 			
