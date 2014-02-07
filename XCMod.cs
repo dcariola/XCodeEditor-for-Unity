@@ -87,7 +87,7 @@ namespace UnityEditor.KabamXCodeEditor
 			path = System.IO.Path.GetDirectoryName( filename );
 			
 			string contents = projectFileInfo.OpenText().ReadToEnd();
-			var dict = (Dictionary<string, object>)Json.Deserialize (message);
+			var dict = (Dictionary<string, object>)Json.Deserialize (contents);
 			_datastore = new Hashtable(dict);	
 			
 //			group = (string)_datastore["group"];
