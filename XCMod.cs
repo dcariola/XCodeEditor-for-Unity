@@ -3,7 +3,7 @@ using System.Collections;
 using System.IO;
 using Json = MiniJSON;
 
-namespace UnityEditor.XCodeEditor 
+namespace UnityEditor.KabamXCodeEditor 
 {
 	public class XCMod 
 	{

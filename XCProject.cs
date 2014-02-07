@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace UnityEditor.XCodeEditor
+namespace UnityEditor.KabamXCodeEditor
 {
 	public partial class XCProject : System.IDisposable
 	{

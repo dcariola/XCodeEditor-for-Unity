@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace UnityEditor.XCodeEditor
+namespace UnityEditor.KabamXCodeEditor
 {
 	public class XCFileOperationQueue : System.IDisposable
 	{

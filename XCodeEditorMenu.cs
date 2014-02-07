@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-namespace UnityEditor.XCodeEditor
+namespace UnityEditor.KabamXCodeEditor
 {
 	public class XCodeEditorMenu
 	{
