@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using Json = Kabam.MiniJSON;
+using Kabam.MiniJSON;
 
 namespace UnityEditor.KabamXCodeEditor 
 {
@@ -86,7 +87,8 @@ namespace UnityEditor.KabamXCodeEditor
 			path = System.IO.Path.GetDirectoryName( filename );
 			
 			string contents = projectFileInfo.OpenText().ReadToEnd();
-			_datastore = (Hashtable)Json.jsonDecode( contents );
+			var dict = (Dictionary<string, object>)Json.Deserialize (message);
+			_datastore = new Hashtable(dict);	
 			
 //			group = (string)_datastore["group"];
 //			patches = (ArrayList)_datastore["patches"];

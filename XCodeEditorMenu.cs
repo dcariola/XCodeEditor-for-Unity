@@ -87,7 +87,7 @@ namespace UnityEditor.KabamXCodeEditor
 //			PBXParser parser = new PBXParser();
 //			Hashtable test = (Hashtable)parser.Decode( contents );
 //			PBXDictionary test = parser.Decode( contents );
-//			Debug.Log( MiniJSON.jsonEncode( test ) );
+//			Debug.Log( Json.jsonEncode( test ) );
 //			Debug.Log( test + " - " + test.Count );
 //			Debug.Log( parser.Encode( test ) );
 			
