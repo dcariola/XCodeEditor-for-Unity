@@ -22,8 +22,10 @@ namespace UnityEditor.KabamXCodeEditor
 		public string path { get; private set; }
 
 		private List<string> convertList(object input) {
-			if (input != null && input.GetType ().Equals (typeof(List))) {
-				return convertList ((List<object>)input);
+			if (input != null && input.GetType ().Equals (typeof(List<object>))) {
+								return convertList ((List<object>)input);
+			} else if (input != null && input.GetType ().Equals (typeof(List<string>))) {
+					return (List<string>)input;
 			} else {
 				return new List<string> ();
 			}
