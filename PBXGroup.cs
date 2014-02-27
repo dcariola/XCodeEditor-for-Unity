@@ -23,13 +23,15 @@ namespace UnityEditor.XCodeEditor
 				this.Add( SOURCETREE_KEY, tree );
 			}
 			else {
-				this.Add( SOURCETREE_KEY, "<group>" );
+				this.Add( SOURCETREE_KEY, "\"<group>\"" );
 			}
+
+			internalNewlines = true;
 		}
 		
 		public PBXGroup( string guid, PBXDictionary dictionary ) : base( guid, dictionary )
 		{
-			
+			internalNewlines = true;
 		}
 		
 		#endregion
@@ -107,60 +109,5 @@ namespace UnityEditor.XCodeEditor
 			return (string)_data[ NAME_KEY ];
 		}
 		
-//	class PBXGroup(PBXObject):
-//    def add_child(self, ref):
-//        if not isinstance(ref, PBXDict):
-//            return None
-//
-//        isa = ref.get('isa')
-//
-//        if isa != 'PBXFileReference' and isa != 'PBXGroup':
-//            return None
-//
-//        if not self.has_key('children'):
-//            self['children'] = PBXList()
-//
-//        self['children'].add(ref.id)
-//
-//        return ref.id
-//
-//    def remove_child(self, id):
-//        if not self.has_key('children'):
-//            self['children'] = PBXList()
-//            return
-//
-//        if not PBXObject.IsGuid(id):
-//            id = id.id
-//
-//        self['children'].remove(id)
-//
-//    def has_child(self, id):
-//        if not self.has_key('children'):
-//            self['children'] = PBXList()
-//            return False
-//
-//        if not PBXObject.IsGuid(id):
-//            id = id.id
-//
-//        return id in self['children']
-//
-//    def get_name(self):
-//        path_name = os.path.split(self.get('path',''))[1]
-//        return self.get('name', path_name)
-//
-//    @classmethod
-//    def Create(cls, name, path=None, tree='SOURCE_ROOT'):
-//        grp = cls()
-//        grp.id = cls.GenerateId()
-//        grp['name'] = name
-//        grp['children'] = PBXList()
-//
-//        if path:
-//            grp['path'] = path
-//            grp['sourceTree'] = tree
-//        else:
-//            grp['sourceTree'] = '<group>'
-//
-//        return grp
 	}
 }
