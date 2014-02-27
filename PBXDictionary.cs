@@ -2,11 +2,17 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UnityEditor.KabamXCodeEditor
+namespace UnityEditor.XCodeEditor
 {
 	public class PBXDictionary : Dictionary<string, object>
 	{
-		
+		public bool internalNewlines;
+
+		public PBXDictionary() : base()
+		{
+			internalNewlines = true;
+		}
+
 		public void Append( PBXDictionary dictionary )
 		{
 			foreach( var item in dictionary) {

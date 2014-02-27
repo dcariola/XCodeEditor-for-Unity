@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UnityEditor.KabamXCodeEditor
+namespace UnityEditor.XCodeEditor
 {
 	public class PBXProject : PBXObject
 	{

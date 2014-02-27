@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace UnityEditor.KabamXCodeEditor
+namespace UnityEditor.XCodeEditor
 {
 	public class XCSourceFile : System.IDisposable
 	{
