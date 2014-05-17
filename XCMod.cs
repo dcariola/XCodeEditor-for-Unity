@@ -56,6 +56,12 @@ namespace UnityEditor.XCodeEditor
 				return (ArrayList)_datastore["headerpaths"];
 			}
 		}
+
+		public Hashtable buildSettings {
+			get {
+				return (Hashtable)_datastore["buildSettings"];
+			}
+		}
 		
 		public ArrayList files {
 			get {
@@ -86,7 +92,7 @@ namespace UnityEditor.XCodeEditor
 			path = System.IO.Path.GetDirectoryName( filename );
 			
 			string contents = projectFileInfo.OpenText().ReadToEnd();
-			_datastore = (Hashtable)MiniJSON.jsonDecode( contents );
+			_datastore = (Hashtable)XMiniJSON.jsonDecode( contents );
 			
 //			group = (string)_datastore["group"];
 //			patches = (ArrayList)_datastore["patches"];
