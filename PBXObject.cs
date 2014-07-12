@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
+	using Debug = UnityEngine.Debug;
 	public class PBXObject
 	{
 		protected const string ISA_KEY = "isa";
