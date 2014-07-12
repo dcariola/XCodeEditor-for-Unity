@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace UnityEditor.XCodeEditor
 {
+	using Debug = UnityEngine.Debug;
 	public class PBXFileReference : PBXObject
 	{
 		protected const string PATH_KEY = "path";
