@@ -55,9 +55,9 @@ The projmods file is a simple text file containing a JSON object. It will be use
                     "Editor/iOS/GameCenter/GameCenterManager.h",
                     "Editor/iOS/GameCenter/GameCenterManager.m"],
     "folders":     [],
-    "excludes":    ["^.*.meta$", "^.*.mdown^", "^.*.pdf$"]
+    "excludes":    ["^.*.meta$", "^.*.mdown^", "^.*.pdf$"],
     "buildSettings": {
-	}
+    }
 }
 ```
 
