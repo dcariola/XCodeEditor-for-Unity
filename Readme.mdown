@@ -20,6 +20,7 @@ You can use the XCProject class in any part of your editor and postprocess code.
 
 ```cs
 using UnityEditor;
+using UnityEditor.Callbacks;
 
 public static class XCodePostProcess
 {
@@ -27,7 +28,7 @@ public static class XCodePostProcess
     public static void OnPostProcessBuild( BuildTarget target, string path )
     {
         // Create a new project object from build target
-        XCodeEditor.XCProject project = new XCodeEditor.XCProject( targetPath );
+        var project = new UnityEditor.XCodeEditor.XCProject( targetPath );
 
         // Find and run through all projmods files to patch the project
         var files = System.IO.Directory.GetFiles( Application.dataPath, "*.projmods", SearchOption.AllDirectories );
