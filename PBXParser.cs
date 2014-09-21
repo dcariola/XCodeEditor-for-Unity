@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace UnityEditor.XCodeEditor
 {
+	using Debug = UnityEngine.Debug;
 	public class PBXParser
 	{
 		public const string PBX_HEADER_TOKEN = "// !$*UTF8*$!\n";

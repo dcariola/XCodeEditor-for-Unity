@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace UnityEditor.XCodeEditor
 {
+	using Debug = UnityEngine.Debug;
 	public partial class XCProject : System.IDisposable
 	{
 		
@@ -532,8 +533,6 @@ namespace UnityEditor.XCodeEditor
 				exclude = new string[] {};
 			string regexExclude = string.Format( @"{0}", string.Join( "|", exclude ) );
 			
-			PBXDictionary results = new PBXDictionary();
-			
 			if( parent == null )
 				parent = rootGroup;
 			
@@ -929,7 +928,7 @@ namespace UnityEditor.XCodeEditor
 			PBXGroup modGroup = this.GetGroup( mod.group );
 			
 			Debug.Log( "Adding libraries..." );
-			PBXGroup librariesGroup = this.GetGroup( "Libraries" );
+			//PBXGroup librariesGroup = this.GetGroup( "Libraries" );
 			foreach( XCModFile libRef in mod.libs ) {
 				string completeLibPath = System.IO.Path.Combine( "usr/lib", libRef.filePath );
 				this.AddFile( completeLibPath, modGroup, "SDKROOT", true, libRef.isWeak );

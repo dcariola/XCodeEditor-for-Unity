@@ -19,7 +19,10 @@ If you already use git for your project, then just add this as a submodule.
 You can use the XCProject class in any part of your editor and postprocess code. Taking advantage of the great powers of the new PostProcessBuild attribute, I suggest to use a small cs static class to run through all the projmods files in your asses folder and simply apply them to the newly created xcode project.
 
 ```cs
+using System.IO;
+using UnityEngine;
 using UnityEditor;
+using UnityEditor.Callbacks;
 
 public static class XCodePostProcess
 {
@@ -27,7 +30,7 @@ public static class XCodePostProcess
     public static void OnPostProcessBuild( BuildTarget target, string path )
     {
         // Create a new project object from build target
-        XCodeEditor.XCProject project = new XCodeEditor.XCProject( targetPath );
+        var project = new UnityEditor.XCodeEditor.XCProject(path);
 
         // Find and run through all projmods files to patch the project
         var files = System.IO.Directory.GetFiles( Application.dataPath, "*.projmods", SearchOption.AllDirectories );
@@ -55,7 +58,9 @@ The projmods file is a simple text file containing a JSON object. It will be use
                     "Editor/iOS/GameCenter/GameCenterManager.h",
                     "Editor/iOS/GameCenter/GameCenterManager.m"],
     "folders":     [],
-    "excludes":    ["^.*.meta$", "^.*.mdown^", "^.*.pdf$"]
+    "excludes":    ["^.*.meta$", "^.*.mdown^", "^.*.pdf$"],
+    "buildSettings": {
+    }
 }
 ```
 
