@@ -47,7 +47,6 @@ namespace UnityEditor.XCodeEditor
 				if( recursive && !path.EndsWith( "/**" ) )
 					currentPath += "/**";
 				
-//				Debug.Log( "adding: " + currentPath );
 				if( !((PBXDictionary)_data[BUILDSETTINGS_KEY]).ContainsKey( key ) ) {
 					((PBXDictionary)_data[BUILDSETTINGS_KEY]).Add( key, new PBXList() );
 				}
@@ -175,59 +174,5 @@ namespace UnityEditor.XCodeEditor
 			return true;
 		}
 		
-//	class XCBuildConfiguration(PBXType):
-//    def add_search_paths(self, paths, base, key, recursive=True):
-//        modified = False
-//
-//        if not isinstance(paths, list):
-//            paths = [paths]
-//
-//        if not self.has_key(base):
-//            self[base] = PBXDict()
-//
-//        for path in paths:
-//            if recursive and not path.endswith('/**'):
-//                path = os.path.join(path, '**')
-//
-//            if not self[base].has_key(key):
-//                self[base][key] = PBXList()
-//            elif isinstance(self[base][key], basestring):
-//                self[base][key] = PBXList(self[base][key])
-//
-//            if self[base][key].add('\\"%s\\"' % path):
-//                modified = True
-//
-//        return modified
-//
-//    def add_header_search_paths(self, paths, recursive=True):
-//        return self.add_search_paths(paths, 'buildSettings', 'HEADER_SEARCH_PATHS', recursive=recursive)
-//
-//    def add_library_search_paths(self, paths, recursive=True):
-//        return self.add_search_paths(paths, 'buildSettings', 'LIBRARY_SEARCH_PATHS', recursive=recursive)
-//
-//    def add_other_cflags(self, flags):
-//        modified = False
-//
-//        base = 'buildSettings'
-//        key = 'OTHER_CFLAGS'
-//
-//        if isinstance(flags, basestring):
-//            flags = PBXList(flags)
-//
-//        if not self.has_key(base):
-//            self[base] = PBXDict()
-//
-//        for flag in flags:
-//
-//            if not self[base].has_key(key):
-//                self[base][key] = PBXList()
-//            elif isinstance(self[base][key], basestring):
-//                self[base][key] = PBXList(self[base][key])
-//
-//            if self[base][key].add(flag):
-//                self[base][key] = [e for e in self[base][key] if e]
-//                modified = True
-//
-//        return modified
 	}
 }

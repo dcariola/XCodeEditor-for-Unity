@@ -31,15 +31,11 @@ namespace UnityEditor.XCodeEditor
 		public const string COMMENT_LINE_TOKEN = "//";
 		private const int BUILDER_CAPACITY = 20000;
 
-		//
 		private char[] data;
 		private int index;
-//		public bool success;
-//		private int indent;
 	
 		public PBXDictionary Decode( string data )
 		{
-//			success = true;
 			if( !data.StartsWith( PBX_HEADER_TOKEN ) ) {
 				Debug.Log( "Wrong file format." );
 				return null;
@@ -54,8 +50,6 @@ namespace UnityEditor.XCodeEditor
 
 		public string Encode( PBXDictionary pbxData, bool readable = false )
 		{
-//			indent = 0;
-
 			StringBuilder builder = new StringBuilder( PBX_HEADER_TOKEN, BUILDER_CAPACITY );
 			bool success = SerializeValue( pbxData, builder, readable );
 
@@ -155,25 +149,6 @@ namespace UnityEditor.XCodeEditor
 			}
 		}
 		
-//		private T Convert<T>( PBXDictionary dictionary )
-//		{
-//			if( dictionary.ContainsKey( "isa" ) ){
-////				((string)dictionary["isa"]).CompareTo(
-//				Type targetType = Type.GetType( (string)dictionary["isa"] );
-//				if( targetType.IsSubclassOf( typeof(PBXObject) ) ) {
-//					Debug.Log( "ok" );
-//					T converted = (T)Activator.CreateInstance( targetType );
-//					return converted;
-//				}
-//				else {
-//					Debug.Log( "Warning: unknown PBX type: " + targetType.Name );
-//					return default(T);
-//				}
-//				
-//			}
-//			return default(T);
-//			
-//		}
 
 		private PBXDictionary ParseDictionary()
 		{
@@ -302,18 +277,6 @@ namespace UnityEditor.XCodeEditor
 			else if( value.GetType().IsPrimitive ) {
 				builder.Append( Convert.ToString( value ) );
 			}
-//			else if( value is Hashtable )
-//			{
-//				serializeObject( (Hashtable)value, builder );
-//			}
-//			else if( ( value is Boolean ) && ( (Boolean)value == true ) )
-//			{
-//				builder.Append( "NO" );
-//			}
-//			else if( ( value is Boolean ) && ( (Boolean)value == false ) )
-//			{
-//				builder.Append( "YES" );
-//			}
 			else {
 				Debug.LogWarning( "Error: unknown object of type " + value.GetType().Name );
 				return false;
