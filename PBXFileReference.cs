@@ -114,20 +114,6 @@ namespace UnityEditor.XCodeEditor
 			
 			this.Add( EXPLICIT_FILE_TYPE_KEY, fileType );
 		}
-		
-//	class PBXFileReference(PBXType):
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 	}
 	
 	public enum TreeEnum {
