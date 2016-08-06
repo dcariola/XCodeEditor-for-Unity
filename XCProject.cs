@@ -969,29 +969,32 @@ namespace UnityEditor.XCodeEditor
 
 			Debug.Log( "Configure build settings..." );
 			Hashtable buildSettings = mod.buildSettings;
-			if( buildSettings.ContainsKey("OTHER_LDFLAGS") )
+			if (mod.buildSettings != null)
 			{
-				Debug.Log( "    Adding other linker flags..." );
-				ArrayList otherLinkerFlags = (ArrayList) buildSettings["OTHER_LDFLAGS"];
-				foreach( string linker in otherLinkerFlags ) 
+				if( buildSettings.ContainsKey("OTHER_LDFLAGS") )
 				{
-					string _linker = linker;
-					if( !_linker.StartsWith("-") )
-						_linker = "-" + _linker;
-					this.AddOtherLDFlags( _linker );
+					Debug.Log( "    Adding other linker flags..." );
+					ArrayList otherLinkerFlags = (ArrayList) buildSettings["OTHER_LDFLAGS"];
+					foreach( string linker in otherLinkerFlags ) 
+					{
+						string _linker = linker;
+						if( !_linker.StartsWith("-") )
+							_linker = "-" + _linker;
+						this.AddOtherLDFlags( _linker );
+					}
 				}
-			}
 
-			if( buildSettings.ContainsKey("GCC_ENABLE_CPP_EXCEPTIONS") )
-			{
-				Debug.Log( "    GCC_ENABLE_CPP_EXCEPTIONS = " + buildSettings["GCC_ENABLE_CPP_EXCEPTIONS"] );
-				this.GccEnableCppExceptions( (string) buildSettings["GCC_ENABLE_CPP_EXCEPTIONS"] );
-			}
+				if( buildSettings.ContainsKey("GCC_ENABLE_CPP_EXCEPTIONS") )
+				{
+					Debug.Log( "    GCC_ENABLE_CPP_EXCEPTIONS = " + buildSettings["GCC_ENABLE_CPP_EXCEPTIONS"] );
+					this.GccEnableCppExceptions( (string) buildSettings["GCC_ENABLE_CPP_EXCEPTIONS"] );
+				}
 
-			if( buildSettings.ContainsKey("GCC_ENABLE_OBJC_EXCEPTIONS") )
-			{
-				Debug.Log( "    GCC_ENABLE_OBJC_EXCEPTIONS = " + buildSettings["GCC_ENABLE_OBJC_EXCEPTIONS"] );
-				this.GccEnableObjCExceptions( (string) buildSettings["GCC_ENABLE_OBJC_EXCEPTIONS"] );
+				if( buildSettings.ContainsKey("GCC_ENABLE_OBJC_EXCEPTIONS") )
+				{
+					Debug.Log( "    GCC_ENABLE_OBJC_EXCEPTIONS = " + buildSettings["GCC_ENABLE_OBJC_EXCEPTIONS"] );
+					this.GccEnableObjCExceptions( (string) buildSettings["GCC_ENABLE_OBJC_EXCEPTIONS"] );
+				}
 			}
 
 			this.Consolidate();
