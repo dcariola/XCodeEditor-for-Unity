@@ -14,27 +14,12 @@ namespace UnityEditor.XCodeEditor
 		
 		public PBXBuildFile( PBXFileReference fileRef, bool weak = false ) : base()
 		{
-			
 			this.Add( FILE_REF_KEY, fileRef.guid );
 			SetWeakLink( weak );
-
-//    def Create(cls, file_ref, weak=False):
-//        if isinstance(file_ref, PBXFileReference):
-//            file_ref = file_ref.id
-//
-//        bf = cls()
-//        bf.id = cls.GenerateId()
-//        bf['fileRef'] = file_ref
-//
-//        if weak:
-//            bf.set_weak_link(True)
-//
-//        return bf
 		}
 		
 		public PBXBuildFile( string guid, PBXDictionary dictionary ) : base ( guid, dictionary )
 		{
-//			Debug.Log( "constructor child" );
 		}
 		
 		public bool SetWeakLink( bool weak = false )
@@ -101,26 +86,6 @@ namespace UnityEditor.XCodeEditor
 			
 			((PBXDictionary)_data[ SETTINGS_KEY ])[ COMPILER_FLAGS_KEY ] = ( string.Join( " ", flags ) + " " + flag );
 			return true;
-			
-//		def add_compiler_flag(self, flag):
-//        k_settings = 'settings'
-//        k_attributes = 'COMPILER_FLAGS'
-//
-//        if not self.has_key(k_settings):
-//            self[k_settings] = PBXDict()
-//
-//        if not self[k_settings].has_key(k_attributes):
-//            self[k_settings][k_attributes] = flag
-//            return True
-//
-//        flags = self[k_settings][k_attributes].split(' ')
-//
-//        if flag in flags:
-//            return False
-//
-//        flags.append(flag)
-//
-//        self[k_settings][k_attributes] = ' '.join(flags)
 		}
 		
 	}

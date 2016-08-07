@@ -6,7 +6,6 @@ namespace UnityEditor.XCodeEditor
 {
 	public class PBXDictionary : Dictionary<string, object>
 	{
-		
 		public void Append( PBXDictionary dictionary )
 		{
 			foreach( var item in dictionary) {
